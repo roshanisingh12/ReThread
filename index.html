@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReThread — AI-Powered Clothing Donation Platform</title>
+  <meta name="description" content="ReThread is an AI-powered platform that tracks your clothing's entire lifespan, matches donations intelligently and ensures zero waste across 500+ cities in India."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/design-system.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════ -->
+<nav id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#" onclick="showPage('home')">
+        <div class="nav-logo-icon">♻️</div>
+        <span class="nav-logo-text">ReThread</span>
+      </a>
+      <div class="nav-links">
+        <span class="nav-link active" onclick="showPage('home')">Home</span>
+        <span class="nav-link" onclick="showPage('donate')">Donate</span>
+        <span class="nav-link" onclick="showPage('wardrobe')">Track Wardrobe</span>
+        <span class="nav-link" onclick="showPage('volunteer')">Volunteer</span>
+        <span class="nav-link" onclick="showPage('ngo')">NGO Portal</span>
+        <span class="nav-link" onclick="showPage('marketplace')">Marketplace</span>
+        <span class="nav-link" onclick="showPage('howitworks')">How It Works</span>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-outline-green btn-sm" onclick="openOnboarding()">Login</button>
+        <button class="btn btn-primary btn-sm" onclick="openOnboarding()">Get Started</button>
+      </div>
+      <button class="hamburger" id="hamburger" onclick="toggleMobile()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav-mobile-menu" id="mobileMenu">
+      <span class="nav-link" onclick="showPage('home');toggleMobile()">Home</span>
+      <span class="nav-link" onclick="showPage('donate');toggleMobile()">Donate</span>
+      <span class="nav-link" onclick="showPage('wardrobe');toggleMobile()">Track Wardrobe</span>
+      <span class="nav-link" onclick="showPage('volunteer');toggleMobile()">Volunteer</span>
+      <span class="nav-link" onclick="showPage('ngo');toggleMobile()">NGO Portal</span>
+      <span class="nav-link" onclick="showPage('marketplace');toggleMobile()">Marketplace</span>
+      <span class="nav-link" onclick="showPage('howitworks');toggleMobile()">How It Works</span>
+      <div class="nav-actions" style="flex-direction:column;width:100%;margin-top:12px">
+        <button class="btn btn-outline-green" style="width:100%;justify-content:center" onclick="openOnboarding()">Login</button>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openOnboarding()">Get Started</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ PAGES CONTAINER ═══════════════════ -->
+<div id="app"></div>
+
+<!-- ══ GLOBAL: FLOATING DONATE BTN ══════ -->
+<button id="floating-donate" onclick="showPage('donate')">
+  <span>🎁</span> Donate Now
+</button>
+
+<!-- ══ GLOBAL: MOBILE BOTTOM NAV ════════ -->
+<nav class="mobile-bottom-nav">
+  <div class="nav-items">
+    <div class="nav-item active" onclick="showPage('home')"><span>🏠</span>Home</div>
+    <div class="nav-item" onclick="showPage('donate')"><span>🎁</span>Donate</div>
+    <div class="nav-item" onclick="showPage('wardrobe')"><span>👕</span>Wardrobe</div>
+    <div class="nav-item" onclick="showPage('volunteer')"><span>🚗</span>Volunteer</div>
+    <div class="nav-item" onclick="openOnboarding()"><span>👤</span>Profile</div>
+  </div>
+</nav>
+
+<!-- ══ TOAST CONTAINER ══════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ══ DONATION READINESS POPUP ══════════ -->
+<div id="readiness-popup">
+  <div class="readiness-popup-header">
+    <span class="readiness-popup-icon">🧥</span>
+    <div>
+      <div class="readiness-popup-title">Your Blue Jacket is ready to find a new home</div>
+      <div class="readiness-popup-desc">Hasn't been worn in 6 months. Someone in need could use it today.</div>
+    </div>
+  </div>
+  <div class="readiness-popup-score">
+    <span class="readiness-score-label">Donation Score</span>
+    <span class="readiness-score-val">74/100</span>
+  </div>
+  <div class="readiness-popup-btns">
+    <button class="donate-now" onclick="showPage('donate');closeReadinessPopup()">Donate Now</button>
+    <button class="remind-later" onclick="closeReadinessPopup()">Remind Later</button>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING MODAL ══════════════════ -->
+<div class="modal-overlay" id="onboarding-modal">
+  <div class="modal">
+    <div id="onboard-step-1" class="onboard-steps active">
+      <div class="section-label" style="margin-bottom:12px">Welcome to ReThread</div>
+      <h2 style="font-size:24px;font-weight:800;color:var(--dark-navy);margin-bottom:8px">How will you use ReThread?</h2>
+      <p style="font-size:14px;color:var(--muted-gray);margin-bottom:4px">Choose your primary role to personalize your experience.</p>
+      <div class="onboard-role-cards">
+        <div class="onboard-role-card" onclick="selectRole(this,'Donor')">
+          <div class="onboard-role-icon">🎁</div>
+          <div class="onboard-role-name">Donor</div>
+        </div>
+        <div class="onboard-role-card" onclick="selectRole(this,'Volunteer')">
+          <div class="onboard-role-icon">🚗</div>
+          <div class="onboard-role-name">Volunteer</div>
+        </div>
+        <div class="onboard-role-card" onclick="selectRole(this,'NGO')">
+          <div class="onboard-role-icon">🏥</div>
+          <div class="onboard-role-name">NGO</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="nextOnboard(1)">Continue →</button>
+    </div>
+    <div id="onboard-step-2" class="onboard-steps">
+      <div class="section-label" style="margin-bottom:12px">Set Your Location</div>
+      <h2 style="font-size:24px;font-weight:800;color:var(--dark-navy);margin-bottom:20px">Where are you based?</h2>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">City</label>
+        <select class="form-control"><option>Mumbai</option><option>Pune</option><option>Delhi</option><option>Bengaluru</option><option>Hyderabad</option><option>Chennai</option><option>Shimla</option></select>
+      </div>
+      <div class="form-group" style="margin-bottom:24px">
+        <label class="form-label">Pin Code</label>
+        <input class="form-control" type="text" placeholder="e.g. 400001"/>
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-outline-green" onclick="nextOnboard(0)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="nextOnboard(2)">Continue →</button>
+      </div>
+    </div>
+    <div id="onboard-step-3" class="onboard-steps">
+      <div style="text-align:center;padding:16px 0">
+        <div style="font-size:64px;margin-bottom:16px">🎉</div>
+        <h2 style="font-size:24px;font-weight:800;color:var(--dark-navy);margin-bottom:12px">You're all set!</h2>
+        <p style="font-size:14px;color:var(--muted-gray);margin-bottom:28px">Add your first clothing item to see your AI match preview instantly.</p>
+        <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="closeOnboarding();showPage('wardrobe');showToast('green','🎉 Welcome to ReThread!','Your account is ready. Add your first item!')">Add First Clothing Item</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ JS FILES ══════════════════════════ -->
+<script src="js/pages/home.js"></script>
+<script src="js/pages/donate.js"></script>
+<script src="js/pages/wardrobe.js"></script>
+<script src="js/pages/volunteer.js"></script>
+<script src="js/pages/ngo.js"></script>
+<script src="js/pages/marketplace.js"></script>
+<script src="js/pages/howitworks.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
