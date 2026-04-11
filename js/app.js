@@ -14,7 +14,6 @@ const pageRenderers = {
     wardrobe: renderWardrobe,
     volunteer: renderVolunteer,
     ngo: renderNGO,
-    marketplace: renderMarketplace,
     howitworks: renderHowItWorks,
 };
 
@@ -27,7 +26,7 @@ function showPage(page) {
     document.querySelectorAll('.nav-link').forEach(l => {
         l.classList.toggle('active', l.textContent.trim().toLowerCase().includes(
             page === 'howitworks' ? 'how' :
-                page === 'wardrobe' ? 'track' :
+                page === 'wardrobe' ? 'donations' :
                     page === 'volunteer' ? 'volunteer' :
                         page === 'ngo' ? 'ngo' :
                             page
@@ -52,11 +51,6 @@ function showPage(page) {
         if (page === 'donate') { donateStep = 1; updateProgLine(); }
         if (page === 'wardrobe') initCounters();
     }, 100);
-
-    // Show readiness popup occasionally on home
-    if (page === 'home') {
-        setTimeout(showReadinessPopup, 4000);
-    }
 }
 
 // ── SCROLL ANIMATIONS ─────────────────────
@@ -147,11 +141,9 @@ function toggleMobile() {
     burger.classList.toggle('open');
 }
 
-// ── ONBOARDING ────────────────────────────
+// ── ONBOARDING / LOCATION MODAL ─────────
 function openOnboarding() {
     document.getElementById('onboarding-modal').classList.add('open');
-    document.querySelectorAll('.onboard-steps').forEach(s => s.classList.remove('active'));
-    document.getElementById('onboard-step-1').classList.add('active');
 }
 function closeOnboarding() {
     document.getElementById('onboarding-modal').classList.remove('open');
@@ -160,24 +152,12 @@ document.getElementById('onboarding-modal').addEventListener('click', function (
     if (e.target === this) closeOnboarding();
 });
 
-function nextOnboard(step) {
-    document.querySelectorAll('.onboard-steps').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(`onboard-step-${step + 1}`);
-    if (el) { el.classList.add('active'); }
-    else closeOnboarding();
-}
-
-function selectRole(el, role) {
-    document.querySelectorAll('.onboard-role-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-}
-
-// ── READINESS POPUP ───────────────────────
-function showReadinessPopup() {
-    document.getElementById('readiness-popup').classList.add('show');
-}
-function closeReadinessPopup() {
-    document.getElementById('readiness-popup').classList.remove('show');
+// Mock setup route after location given
+function doDonateMapSetup() {
+    // We will initialize the donate map if on donate page
+    if(currentPage === 'donate' && typeof initDonateMap === 'function') {
+        setTimeout(initDonateMap, 500);
+    }
 }
 
 // ── DONATE FORM LOGIC ─────────────────────
@@ -262,11 +242,16 @@ function updateAIPreview() {
 }
 
 function confirmDonation() {
-    closeReadinessPopup();
-    showToast('green', '🎉 Pickup Scheduled!', 'Rahul K. will arrive tomorrow at 10 AM. Track in My Wardrobe!');
-    setTimeout(() => showToast('orange', '📍 Match Confirmed', 'Your clothes matched to Shimla Relief Camp — need: HIGH'), 1500);
-    setTimeout(() => showToast('blue', '🌱 +50 Green Credits!', 'You earned 50 credits for this donation'), 3000);
-    setTimeout(() => showPage('wardrobe'), 4000);
+    // Generate QR ID and go to tracking
+    showToast('green', '🎉 Pickup Scheduled!', 'Volunteer will arrive tomorrow. Track in My Donations!');
+    setTimeout(() => showToast('orange', '📍 Match Confirmed', 'Your clothes matched to nearby NGO.'), 1500);
+    
+    // Auto-spawn a new donation object in wardrobe array
+    if(typeof addNewDonation === 'function') {
+        addNewDonation();
+    }
+    
+    setTimeout(() => showPage('wardrobe'), 3000);
 }
 
 // ── ZONE MAP ──────────────────────────────

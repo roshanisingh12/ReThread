@@ -37,29 +37,28 @@ function renderVolunteer() {
         <div class="vol-stat-card fade-up fade-up-delay-2"><div class="vol-stat-icon">🛣️</div><div class="vol-stat-num counter" data-target="340">0</div><div class="vol-stat-label">km Covered</div></div>
         <div class="vol-stat-card fade-up fade-up-delay-3"><div class="vol-stat-icon">🌱</div><div class="vol-stat-num counter" data-target="1240">0</div><div class="vol-stat-label">Green Credits</div></div>
       </div>
-      <!-- ASSIGNMENTS -->
+      <!-- AVAILABLE PICKUPS -->
       <div id="vol-assignments">
-        <h2 style="font-size:18px;font-weight:700;color:var(--dark-navy);margin-bottom:16px">🚗 Active Assignments</h2>
+        <h2 style="font-size:18px;font-weight:700;color:var(--dark-navy);margin-bottom:16px">🚗 Available Pickups Near Me</h2>
         ${[
-            { from: 'Priya S.', dist: '2.1 km', items: '3× Winter Jackets', cond: 'Good', drop: 'Shimla Camp via Pune Hub', bundle: '2 other pickups on same route', status: 'Assigned', statusClass: 'badge-blue' },
-            { from: 'Meera T.', dist: '1.4 km', items: '5× Children\'s Clothes', cond: 'New', drop: 'Pune Orphanage', bundle: '1 other pickup on same route', status: 'Accepted', statusClass: 'badge-orange' },
-            { from: 'Arun V.', dist: '3.2 km', items: '2× Blankets', cond: 'Usable', drop: 'Mumbai Relief Hub', bundle: 'No bundling — single trip', status: 'Assigned', statusClass: 'badge-blue' },
+            { from: 'Kothrud, Pune', dist: '2.1 km', items: '1× Mens Winter Jacket', drop: 'Aasra Relief Camp', mapLink: 'https://maps.google.com/?q=Kothrud+Pune' },
+            { from: 'Viman Nagar, Pune', dist: '5.4 km', items: '3× Children\'s Clothes', drop: 'Pune Orphanage Hub', mapLink: 'https://maps.google.com/?q=Viman+Nagar+Pune' },
+            { from: 'Baner, Pune', dist: '8.2 km', items: '2× Blankets', drop: 'Smile Foundation', mapLink: 'https://maps.google.com/?q=Baner+Pune' },
         ].map(a => `
         <div class="assignment-card fade-up">
           <div class="assignment-header">
             <div>
-              <div class="assignment-from">📦 Pickup from: ${a.from}</div>
-              <div class="assignment-dist">${a.dist} away</div>
+              <div class="assignment-from">📍 Area: ${a.from}</div>
+              <div class="assignment-dist" style="color:var(--accent-orange);font-weight:600;">${a.dist} away</div>
             </div>
-            <span class="badge ${a.statusClass}">${a.status}</span>
+            <span class="badge badge-green">New</span>
           </div>
-          <div class="assignment-items">${a.items}</div>
-          <div class="assignment-condition">Condition: ${a.cond}</div>
-          <div class="assignment-drop">📍 Drop to: ${a.drop}</div>
-          <div class="assignment-bundle">📦 Bundle: ${a.bundle}</div>
-          <div class="assignment-actions">
-            <button class="btn btn-primary btn-sm" onclick="showToast('green','🗺️ Navigating!','Opening optimized route to ${a.from}')">Navigate</button>
-            <button class="btn btn-outline-green btn-sm" onclick="showToast('green','✅ Accepted!','Assignment accepted. Donor notified.')">Accept</button>
+          <div class="assignment-items" style="margin-top:12px; font-weight:700;">📦 Items: ${a.items}</div>
+          <div class="assignment-drop" style="color:var(--muted-gray); margin-bottom:16px; font-size:13px;">🏥 Destination: ${a.drop}</div>
+          
+          <div class="assignment-actions" style="display:flex; gap:12px;">
+            <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="showToast('green','✅ Pickup Accepted!','Donation assigned to you. Donor has been notified.')">Accept Pickup</button>
+            <a class="btn btn-outline-green" style="display:flex; justify-content:center; text-decoration:none;" href="${a.mapLink}" target="_blank">View on Google Maps ↗</a>
           </div>
         </div>`).join('')}
       </div>

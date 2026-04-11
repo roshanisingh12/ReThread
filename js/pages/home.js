@@ -9,74 +9,36 @@ function renderHome() {
 <section id="hero">
   <div class="container" style="display:flex;gap:60px;align-items:center;padding-top:40px;padding-bottom:60px;flex-wrap:wrap">
     <div class="hero-content">
-      <div class="hero-label">🌱 Sustainability Meets Technology</div>
+      <div class="hero-label">🌱 Sustainable Donation</div>
       <h1 class="hero-headline">
-        Right Clothes.<br/>
-        <span>Right People.</span><br/>
-        <span class="orange">Right Now.</span>
+        Give your clothes a<br/>
+        <span style="color:var(--primary-green)">second life.</span>
       </h1>
-      <p class="hero-subtitle">AI-powered platform that tracks your clothing's entire lifespan, matches donations intelligently and ensures zero waste, zero mismatch — even across 500 cities.</p>
+      <p class="hero-subtitle">AI matches your unused clothing to the NGO that needs it most — right in your city.</p>
       <div class="hero-ctas">
-        <button class="btn btn-primary btn-lg" onclick="showPage('donate')">🎁 Donate Clothes</button>
-        <button class="btn btn-outline-orange btn-lg" onclick="showPage('wardrobe')">👕 Track My Wardrobe</button>
-      </div>
-      <div class="hero-trust">
-        <div class="hero-trust-avatars">
-          <span>P</span><span>R</span><span>S</span><span>A</span><span>+</span>
-        </div>
-        <div class="hero-trust-text"><strong>12,400+</strong> people tracking clothes across India</div>
+        <button class="btn btn-primary btn-lg" onclick="showPage('donate')">Donate Now →</button>
+        <button class="btn btn-outline-green btn-lg" onclick="showPage('howitworks')">See how it works</button>
       </div>
     </div>
     <div class="hero-visual" style="flex:1;min-width:280px">
       <div style="position:relative;display:inline-block">
         <div class="hero-float-badge badge-tl fade-up"><span>🤖</span> AI Matched</div>
-        <div class="hero-float-badge badge-tr fade-up fade-up-delay-2"><span>📍</span> 2.1 km away</div>
-        <div class="hero-float-badge badge-br fade-up fade-up-delay-3"><span>🌱</span> 8.5kg CO₂ saved</div>
+        <div class="hero-float-badge badge-tr fade-up fade-up-delay-2"><span>📍</span> 1.8 km away</div>
+        <div class="hero-float-badge badge-br fade-up fade-up-delay-3"><span>👕</span> Winter Need</div>
         <div class="phone-mockup">
           <div class="phone-screen">
             <div class="phone-notch"></div>
             <div class="phone-app">
               <div class="phone-app-header">
-                <span class="phone-app-title">My Wardrobe</span>
-                <div class="phone-add-btn">+</div>
+                <span class="phone-app-title">AI Vision Scan</span>
               </div>
-              <div class="phone-clothes-card">
-                <div class="phone-card-row">
-                  <div class="phone-card-icon">🧥</div>
-                  <div class="phone-card-info">
-                    <div class="phone-card-name">Blue Denim Jacket</div>
-                    <div class="phone-card-sub">Levi's · Worn 47×</div>
-                  </div>
-                  <div class="phone-card-score">68%</div>
+              <div class="phone-clothes-card" style="text-align:center;padding:30px 15px">
+                <div style="font-size:70px;margin-bottom:10px">🧥</div>
+                <div style="font-weight:800;font-size:20px;color:var(--dark-navy)">Men's Winter Jacket</div>
+                <div style="color:var(--muted-gray);font-size:15px;margin-top:6px;margin-bottom:24px">Condition: Good</div>
+                <div style="background:rgba(74, 222, 128, 0.15);color:var(--primary-green);padding:12px;border-radius:10px;font-size:14px;font-weight:700">
+                  🎯 Match: Aasra NGO (1.8 km)
                 </div>
-                <div class="phone-health-label"><span>Fabric Health</span><span>68%</span></div>
-                <div class="phone-health-bar"><div class="phone-health-fill yellow" style="width:68%"></div></div>
-                <div class="phone-donate-tag">🔔 Donate Soon</div>
-              </div>
-              <div class="phone-clothes-card">
-                <div class="phone-card-row">
-                  <div class="phone-card-icon" style="background:linear-gradient(135deg,#E65100,#FF7043)">👔</div>
-                  <div class="phone-card-info">
-                    <div class="phone-card-name">White Formal Shirt</div>
-                    <div class="phone-card-sub">Arrow · Worn 12×</div>
-                  </div>
-                  <div class="phone-card-score" style="color:#4ADE80">91%</div>
-                </div>
-                <div class="phone-health-label"><span>Fabric Health</span><span>91%</span></div>
-                <div class="phone-health-bar"><div class="phone-health-fill" style="width:91%"></div></div>
-              </div>
-              <div class="phone-clothes-card">
-                <div class="phone-card-row">
-                  <div class="phone-card-icon" style="background:linear-gradient(135deg,#6A1B9A,#9C27B0)">👟</div>
-                  <div class="phone-card-info">
-                    <div class="phone-card-name">Running Shoes</div>
-                    <div class="phone-card-sub">Nike · Worn 89×</div>
-                  </div>
-                  <div class="phone-card-score" style="color:#F87171">32%</div>
-                </div>
-                <div class="phone-health-label"><span>Fabric Health</span><span>32%</span></div>
-                <div class="phone-health-bar"><div class="phone-health-fill red" style="width:32%"></div></div>
-                <div class="phone-donate-tag" style="background:rgba(239,68,68,0.2);color:#F87171">♻️ Ready to Recycle</div>
               </div>
             </div>
           </div>
@@ -89,22 +51,18 @@ function renderHome() {
 <!-- ── STATS ROW ──────────────────────────── -->
 <section id="stats-row">
   <div class="container">
-    <div class="stats-grid">
+    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
       <div class="stat-item fade-up">
         <div class="stat-number"><span class="counter" data-target="12400">0</span><span>+</span></div>
-        <div class="stat-label">Clothes Tracked</div>
+        <div class="stat-label">Items Donated</div>
+      </div>
+      <div class="stat-item fade-up fade-up-delay-1">
+        <div class="stat-number"><span class="counter" data-target="87">0</span></div>
+        <div class="stat-label">NGOs Onboarded</div>
       </div>
       <div class="stat-item fade-up fade-up-delay-2">
-        <div class="stat-number"><span class="counter" data-target="340">0</span><span>+</span></div>
-        <div class="stat-label">Active Volunteers</div>
-      </div>
-      <div class="stat-item fade-up fade-up-delay-3">
-        <div class="stat-number"><span class="counter" data-target="89">0</span></div>
-        <div class="stat-label">NGOs Connected</div>
-      </div>
-      <div class="stat-item fade-up fade-up-delay-4">
-        <div class="stat-number"><span class="counter" data-target="90">0</span><span>%</span></div>
-        <div class="stat-label">Shipping Cost Saved</div>
+        <div class="stat-number"><span class="counter" data-target="31000">0</span><span>+</span></div>
+        <div class="stat-label">Beneficiaries Clothed</div>
       </div>
     </div>
   </div>
@@ -277,8 +235,7 @@ function renderHome() {
             <div class="passport-meta-item">🌱 8.5 kg CO₂ saved</div>
           </div>
           <div class="passport-actions">
-            <button class="passport-action-btn donate" onclick="showPage('donate')">Donate</button>
-            <button class="passport-action-btn sell" onclick="showPage('marketplace')">Sell</button>
+            <button class="passport-action-btn donate" onclick="showPage('donate')" style="flex:2">Donate</button>
             <button class="passport-action-btn fix">Fix</button>
           </div>
         </div>
@@ -536,8 +493,7 @@ function renderHome() {
           <span class="footer-link" onclick="showPage('donate')">→ Donate Clothes</span>
           <span class="footer-link" onclick="showPage('wardrobe')">→ Track Wardrobe</span>
           <span class="footer-link" onclick="showPage('volunteer')">→ Volunteer</span>
-          <span class="footer-link" onclick="showPage('ngo')">→ NGO Partner</span>
-          <span class="footer-link" onclick="showPage('marketplace')">→ Marketplace</span>
+          <span class="footer-link" onclick="showPage('howitworks')">→ How It Works</span>
         </div>
       </div>
       <div>
