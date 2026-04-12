@@ -6,36 +6,41 @@
 window.envConfig = {};
 
 async function loadEnv() {
-    // 1. Try Vercel Serverless Bridge (Proper Vercel Path)
-    try {
-        const resp = await fetch('/api/config');
-        if (resp.ok) {
-            window.envConfig = await resp.json();
-            console.log("Environment loaded via Vercel Bridge");
-            return;
-        }
-    } catch (e) {
-        console.warn("Vercel Bridge not available, checking local sources...");
-    }
+    // 1. Try Local Storage (User Setup)
+    const localGemini = localStorage.getItem('RT_GEMINI_KEY');
+    const localFirebase = localStorage.getItem('RT_FIREBASE_KEY');
+    if (localGemini) window.envConfig.GEMINI_API_KEY = localGemini;
+    if (localFirebase) window.envConfig.FIREBASE_API_KEY = localFirebase;
 
-    // 2. Try URL Fetch (Local Dev Fallback)
-    const sources = ['/env.example', '/.env.example', '/.env'];
+    // 2. Try URL Fetch (Standard Sources)
+    const sources = ['/env.json', '/env.example', '/.env.example', '/.env'];
     for (const source of sources) {
         try {
             const resp = await fetch(source);
             if (resp.ok) {
-                const text = await resp.text();
-                text.split('\n').forEach(line => {
-                    const trimmedLine = line.trim();
-                    if (!trimmedLine || trimmedLine.startsWith('#')) return;
-                    
-                    const parts = trimmedLine.split('=');
-                    if (parts.length >= 2) {
-                        const key = parts[0].trim();
-                        const value = parts.slice(1).join('=').trim().replace(/['"]/g, '');
-                        window.envConfig[key] = value;
-                    }
-                });
+                if (source.endsWith('.json')) {
+                    const config = await resp.json();
+                    Object.keys(config).forEach(key => {
+                        if (!window.envConfig[key] || window.envConfig[key].includes('PASTE_YOUR')) {
+                            window.envConfig[key] = config[key];
+                        }
+                    });
+                } else {
+                    const text = await resp.text();
+                    text.split('\n').forEach(line => {
+                        const trimmedLine = line.trim();
+                        if (!trimmedLine || trimmedLine.startsWith('#')) return;
+                        
+                        const parts = trimmedLine.split('=');
+                        if (parts.length >= 2) {
+                            const key = parts[0].trim();
+                            const value = parts.slice(1).join('=').trim().replace(/['"]/g, '');
+                            if (!window.envConfig[key] || window.envConfig[key].includes('PASTE_YOUR')) {
+                                window.envConfig[key] = value;
+                            }
+                        }
+                    });
+                }
                 console.log(`Environment loaded from ${source}`);
                 return; 
             }
@@ -52,6 +57,19 @@ async function initApp() {
         if (appEl) appEl.innerHTML = '<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:var(--dark-navy)"><div style="font-size:40px;animation:spin 2s linear infinite">🔄</div><div style="font-weight:600">Initializing ReThread...</div></div>';
 
         await loadEnv();
+
+        // Check if configuration is missing
+        const isConfigMissing = !window.envConfig.GEMINI_API_KEY || 
+                                 window.envConfig.GEMINI_API_KEY.includes('PASTE_YOUR') || 
+                                !window.envConfig.FIREBASE_API_KEY ||
+                                 window.envConfig.FIREBASE_API_KEY.includes('PASTE_YOUR');
+
+        if (isConfigMissing) {
+            const setupModal = document.getElementById('setup-modal');
+            if (setupModal) setupModal.classList.add('open');
+            if (appEl) appEl.innerHTML = ''; // Clear splash
+            return;
+        }
 
         const firebaseConfig = {
             apiKey: window.envConfig.FIREBASE_API_KEY,
@@ -70,8 +88,30 @@ async function initApp() {
     } catch (e) {
         console.error("Critical Startup Error:", e);
     } finally {
-        showPage('home');
+        // Only show home if configuration was NOT missing (which stops initApp)
+        if (window.envConfig.GEMINI_API_KEY && !window.envConfig.GEMINI_API_KEY.includes('PASTE_YOUR')) {
+            showPage('home');
+        }
     }
+}
+
+function saveSetupConfig() {
+    const gemini = document.getElementById('setup-gemini-key').value.trim();
+    const firebaseKey = document.getElementById('setup-firebase-key').value.trim();
+
+    if (!gemini || !firebaseKey) {
+        showToast('orange', 'Configuration Missing', 'Please provide both API keys.');
+        return;
+    }
+
+    localStorage.setItem('RT_GEMINI_KEY', gemini);
+    localStorage.setItem('RT_FIREBASE_KEY', firebaseKey);
+    
+    showToast('green', 'Setup Complete', 'Configuration saved. Launching app...');
+    
+    // Hide modal and restart init
+    document.getElementById('setup-modal').classList.remove('open');
+    initApp();
 }
 
 

@@ -67,6 +67,32 @@
   🧥 1,247 items donated this month · 23 NGOs served · 4,800 beneficiaries clothed
 </div>
 
+<!-- ══ PROJECT SETUP MODAL ═══════════════ -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal" style="max-width: 500px; padding: 32px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--dark-navy);">Project Configuration</h2>
+      <p style="color: var(--muted-gray); font-size: 14px;">Welcome to ReThread! Since this is a secure deployment, please provide your API keys to initialize the demo locally.</p>
+    </div>
+    
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted-gray); margin-bottom: 8px;">Gemini API Key</label>
+      <input type="password" id="setup-gemini-key" placeholder="AIzaSy..." style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace;">
+      <small style="display: block; margin-top: 4px; font-size: 11px; color: var(--muted-gray);">Get one at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary-green);">Google AI Studio</a></small>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 32px;">
+      <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted-gray); margin-bottom: 8px;">Firebase API Key</label>
+      <input type="password" id="setup-firebase-key" placeholder="AIzaSy..." style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace;">
+      <small style="display: block; margin-top: 4px; font-size: 11px; color: var(--muted-gray);">Find it in your Firebase Console Settings</small>
+    </div>
+
+    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 16px;" onclick="saveSetupConfig()">Complete Setup & Launch 🚀</button>
+    <p style="text-align: center; font-size: 11px; color: var(--muted-gray); margin-top: 16px;">Keys are stored ONLY in your local browser and never sent to our servers.</p>
+  </div>
+</div>
+
 <!-- ══ PAGES CONTAINER ═══════════════════ -->
 <div id="app"></div>
 

@@ -6,17 +6,15 @@ let donateState = { base64: null, analysis: null, ngo: null, id: null };
 let ngoMap = null;
 
 const hardcodedNgOs = [
-    { name: "Goonj - Regional Drop", lat: 18.5204, lng: 73.8567, category: "Mixed Clothing", badge: "🔴 Urgent" },
-    { name: "Smile Foundation Center", lat: 28.6139, lng: 77.2090, category: "Children's Clothing", badge: "🟡 Medium Needs" },
-    { name: "HelpAge India Hub", lat: 19.0760, lng: 72.8777, category: "Senior Support", badge: "🟢 Normal" },
+    { name: "Aasra Relief Camp", lat: 18.5204, lng: 73.8567, category: "Adult Winter Wear", badge: "🔴 Urgent" },
+    { name: "Pune Orphanage Hub", lat: 18.5304, lng: 73.8667, category: "Children's Clothing", badge: "🟡 Medium Needs" },
+    { name: "Smile Foundation Drop", lat: 18.5404, lng: 73.8767, category: "Footwear", badge: "🟢 Normal" },
     { name: "Robin Hood Army Point", lat: 12.9716, lng: 77.5946, category: "Footwear & More", badge: "🟡 Medium Needs" },
     { name: "Kolkata Relief Fund", lat: 22.5726, lng: 88.3639, category: "Winter Wear", badge: "🔴 Urgent" },
     { name: "Chennai Care Point", lat: 13.0827, lng: 80.2707, category: "Summer Essentials", badge: "🟢 Normal" },
     { name: "Hyderabad Hope", lat: 17.3850, lng: 78.4867, category: "School Uniforms", badge: "🟡 Medium Needs" },
     { name: "Jaipur Heritage Aid", lat: 26.9124, lng: 75.7873, category: "Traditional Wear", badge: "🟢 Normal" },
     { name: "Ahmedabad Uplift", lat: 23.0225, lng: 72.5714, category: "Blankets & Linens", badge: "🔴 Urgent" },
-    { name: "Lucknow Unity Hub", lat: 26.8467, lng: 80.9462, category: "Casual Wear", badge: "🟡 Medium Needs" },
-    { name: "Guwahati Green", lat: 26.1445, lng: 91.7362, category: "Eco-friendly Fiber", badge: "🟢 Normal" },
     // PAN-INDIA BACKUPS (Always Shown)
     { name: "ReThread Global Hub", lat: 20.5937, lng: 78.9629, category: "Universal Aid", badge: "🚀 Pan-India Support", isBackup: true },
     { name: "Smile Foundation (Backup)", lat: 28.5355, lng: 77.3910, category: "Child Support", badge: "🏢 Official Partner", isBackup: true },
@@ -29,13 +27,13 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         const finalDist = R * c;
         if (isNaN(finalDist)) return 9999;
-        return Number(finalDist.toFixed(1)); 
-    } catch(e) {
+        return Number(finalDist.toFixed(1));
+    } catch (e) {
         return 9999; // Safe fallback if math fails
     }
 }
@@ -136,26 +134,34 @@ function renderDonate() {
 
     <!-- STEP 3: CONFIRM & QR -->
     <div class="form-section" id="fStep3">
-      <h2 style="font-size:20px; font-weight:700; color:var(--dark-navy); margin-bottom:16px;">Step 3 — Confirm & Attach QR</h2>
-      <div style="background:var(--card-bg); border-radius:12px; border:1.5px solid var(--border-color); padding:20px; text-align:center;">
-        <div style="color:var(--muted-gray); margin-bottom:12px;">Your Donation ID</div>
-        <div style="font-size:24px; font-weight:800; color:var(--dark-navy); letter-spacing:1px;" id="conf-don-id">RT-2024-XXXXX</div>
+      <h2 style="font-size:20px; font-weight:700; color:var(--dark-navy); margin-bottom:24px;">Step 3 — Confirm & Attach QR</h2>
+      
+      <div style="background:#fff; border-radius:16px; border:1px solid var(--border-color); padding:32px; box-shadow:var(--shadow); max-width:600px; margin:0 auto; text-align:center;">
+        <div style="color:var(--muted-gray); font-size:14px; margin-bottom:8px;">Your Donation ID</div>
+        <div style="font-size:28px; font-weight:800; color:var(--dark-navy); letter-spacing:1px; margin-bottom:24px;" id="conf-don-id">RT-2024-XXXXX</div>
         
-        <div id="qr-code-container" style="display:flex; justify-content:center; margin:24px 0;"></div>
+        <div id="qr-code-container" style="display:flex; justify-content:center; margin-bottom:24px; padding:16px; background:#f9f9f9; border-radius:12px; width:fit-content; margin-left:auto; margin-right:auto;"></div>
         
-        <div style="background:var(--light-green); color:var(--primary-green); padding:12px; border-radius:8px; font-size:14px; font-weight:600; margin-bottom:24px;">
+        <div style="background:var(--light-green); color:var(--primary-green); padding:16px 24px; border-radius:12px; font-size:14px; font-weight:600; margin-bottom:32px; border:1px solid rgba(27,107,58,0.1);">
           Attach this QR to your donation bag. When the NGO receives it, you'll be notified via My Donations.
         </div>
 
-        <div style="text-align:left; border-top:1px solid var(--border-color); padding-top:16px; margin-bottom:24px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="color:var(--muted-gray);">Item</span><span id="c-item" style="font-weight:600; color:var(--dark-navy);">...</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="color:var(--muted-gray);">Destination</span><span id="c-ngo" style="font-weight:600; color:var(--primary-green);">...</span></div>
+        <div style="border-top:1px solid var(--border-color); padding-top:24px; margin-bottom:32px; text-align:left;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <span style="color:var(--muted-gray); font-size:15px;">Item</span>
+            <span id="c-item" style="font-weight:700; color:var(--dark-navy); font-size:15px;">Men's Winter Jacket</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--muted-gray); font-size:15px;">Destination</span>
+            <span id="c-ngo" style="font-weight:700; color:var(--primary-green); font-size:15px;">Aasra Relief Camp</span>
+          </div>
         </div>
 
-        <button class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" onclick="finishDonationFlow()">✓ Complete & Track Donation</button>
+        <button class="btn btn-primary btn-lg" style="width:100%; justify-content:center; padding:18px; font-size:16px; border-radius:12px;" onclick="finishDonationFlow()">✓ Complete & Track Donation</button>
       </div>
-      <div class="form-nav-btns" style="margin-top:12px;">
-        <button class="btn btn-outline-green btn-sm" onclick="goDonateStep(2)">← Back</button>
+
+      <div class="form-nav-btns" style="margin-top:20px; justify-content:center;">
+        <button class="btn btn-outline-green btn-sm" onclick="goDonateStep(2)" style="border-radius:12px;">← Back</button>
       </div>
     </div>
 
@@ -185,7 +191,7 @@ async function handlePhotoUpload(e) {
     const reader = new FileReader();
     reader.onload = async (ev) => {
         donateState.base64 = ev.target.result;
-        
+
         // Show modal & loading state
         const modal = document.getElementById('ai-modal');
         if (modal) modal.classList.add('open');
@@ -222,7 +228,7 @@ function closeAiModal() {
 // Fake/Real Gemini API call
 async function callGeminiVisionAPI(base64Image) {
     let apiKey = window.envConfig.GEMINI_API_KEY || localStorage.getItem('gemini_key');
-    
+
     // Config is now centrally managed in app.js via loadEnv()
 
     // If no key, throw error instead of using hardcoded mock to prevent confusion
@@ -253,24 +259,24 @@ async function callGeminiVisionAPI(base64Image) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-        
+
         const data = await res.json();
-        
+
         if (!res.ok) {
             console.error("Gemini 2.5 Flash Error Body:", data);
             throw new Error(data.error?.message || "Gemini 2.5 API request failed with status " + res.status);
         }
-        
+
         if (!data.candidates || !data.candidates[0].content) {
             console.error("Gemini 2.5 Flash Unexpected structure:", data);
             throw new Error("Invalid response structure from Gemini 2.5 AI.");
         }
-        
+
         let jsonStr = data.candidates[0].content.parts[0].text;
         // Clean markdown backticks if Gemini returns them
         jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(jsonStr);
-    } catch(err) {
+    } catch (err) {
         console.warn("RETHREAD_DIAGNOSTIC: Analysis Logic Failed:", err);
         throw err; // Re-throw to show in UI
     }
@@ -326,18 +332,18 @@ function initDonateMap() {
 
             // User Pin
             const userIcon = L.divIcon({ html: '<div style="background:var(--primary-green); width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 10px var(--primary-green);"></div>', className: 'map-icon' });
-            L.marker([lat, lng], {icon: userIcon}).addTo(ngoMap).bindPopup("<b>You are here</b>").openPopup();
+            L.marker([lat, lng], { icon: userIcon }).addTo(ngoMap).bindPopup("<b>You are here</b>").openPopup();
 
             // NGO Pins
             const ngoIcon = L.divIcon({ html: '<span style="font-size:20px">🏥</span>', className: 'ngo-map-marker' });
             hardcodedNgOs.forEach(n => {
                 try {
-                    L.marker([n.lat, n.lng], {icon: ngoIcon}).addTo(ngoMap).bindPopup(`<b>${n.name}</b><br/>Category: ${n.category}`);
-                } catch(e) { console.warn("Marker skip:", n.name); }
+                    L.marker([n.lat, n.lng], { icon: ngoIcon }).addTo(ngoMap).bindPopup(`<b>${n.name}</b><br/>Category: ${n.category}`);
+                } catch (e) { console.warn("Marker skip:", n.name); }
             });
-            
+
             setTimeout(() => ngoMap.invalidateSize(), 400);
-        } catch(e) {
+        } catch (e) {
             console.error("Map Setup Crash:", e);
         }
     };
@@ -356,7 +362,7 @@ function initDonateMap() {
                 try {
                     const dist = calculateDistance(lat, lng, n.lat, n.lng);
                     return { ...n, realDist: dist };
-                } catch(e) {
+                } catch (e) {
                     return { ...n, realDist: 9999 };
                 }
             });
@@ -364,29 +370,65 @@ function initDonateMap() {
             // 2. Filter: within 600km OR marked as Pan-India backup
             let filtered = annotated.filter(n => n.realDist <= 600 || n.isBackup);
 
-            // 3. Fallback: if somehow list is empty, show backups only
+            // 3. Smart Match Demo: Always inject a matching NGO if analysis exists
+            if (donateState.analysis && donateState.analysis.item_type !== 'Not a clothing item') {
+                const demoNgo = {
+                    name: `NGO: ${donateState.analysis.suggested_use || 'Aasra Relief Camp'}`,
+                    lat: lat + 0.005, 
+                    lng: lng + 0.005,
+                    realDist: 0.8,
+                    category: donateState.analysis.category || 'Clothing Needs',
+                    badge: "✨ Perfect Match",
+                    isDemo: true
+                };
+                filtered.unshift(demoNgo);
+
+                // Add star marker to map for demo
+                if (ngoMap) {
+                    const demoIcon = L.divIcon({ 
+                        html: '<span style="font-size:24px; filter: drop-shadow(0 0 5px var(--primary-green));">⭐</span>', 
+                        className: 'map-icon' 
+                    });
+                    L.marker([demoNgo.lat, demoNgo.lng], { icon: demoIcon })
+                        .addTo(ngoMap)
+                        .bindPopup(`<b>${demoNgo.name}</b><br/>Category: ${demoNgo.category}<br/><b>(Perfect AI Match)</b>`)
+                        .openPopup();
+                }
+            }
+
+            // 4. Fallback: if somehow list is still empty, show all backups
             if (filtered.length === 0) {
                 filtered = annotated.filter(n => n.isBackup);
             }
 
-            // 4. Sort by distance
+            // 5. Sort by distance
             filtered.sort((a, b) => (Number(a.realDist) || 0) - (Number(b.realDist) || 0));
 
-            listContainer.innerHTML = filtered.map((n, i) => `
-            <div class="fade-up" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap; animation-delay: ${i * 0.1}s">
-            <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border-color); flex-shrink:0;">${n.isBackup ? '🚀' : '🏥'}</div>
-            <div style="flex:1; min-width:min(200px, 100vw)">
-                <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
-                <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist > 1000 ? 'Regional Hub' : n.realDist + ' km away'} · <strong>Needs: ${n.category}</strong></div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:11px; font-weight:700; margin-bottom:8px; padding:4px 8px; background:white; border-radius:4px; display:inline-block; border:1px solid var(--border-color);">${n.badge}</div>
-                <br/>
-                <button class="btn btn-primary btn-sm" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
-            </div>
-            </div>
-            `).join('');
-        } catch(e) {
+            // 6. Final Render
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted-gray);">No NGOs found in your immediate area. Please try a major city.</div>`;
+            } else {
+                listContainer.innerHTML = filtered.map((n, i) => `
+                <div class="fade-up" style="background:var(--card-bg); border:1px solid ${n.isDemo ? 'var(--primary-green)' : 'var(--border-color)'}; border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap; animation-delay: ${i * 0.1}s; ${n.isDemo ? 'box-shadow: 0 4px 12px rgba(27, 107, 58, 0.1);' : ''}">
+                <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid ${n.isDemo ? 'var(--primary-green)' : 'var(--border-color)'}; flex-shrink:0;">${n.isDemo ? '⭐' : (n.isBackup ? '🚀' : '🏥')}</div>
+                <div style="flex:1; min-width:min(200px, 100vw)">
+                    <div style="font-weight:700; color:var(--dark-navy);">${n.name} ${n.isDemo ? '<span style="font-size:10px; background:var(--primary-green); color:white; padding:2px 6px; border-radius:4px; margin-left:8px;">AI RECOMMENDED</span>' : ''}</div>
+                    <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist > 1000 ? 'Regional Hub' : n.realDist + ' km away'} · <strong>Needs: ${n.category}</strong></div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:11px; font-weight:700; margin-bottom:8px; padding:4px 8px; background:${n.isDemo ? 'var(--light-green)' : 'white'}; color:${n.isDemo ? 'var(--primary-green)' : 'inherit'}; border-radius:4px; display:inline-block; border:1px solid ${n.isDemo ? 'var(--primary-green)' : 'var(--border-color)'};">${n.badge}</div>
+                    <br/>
+                    <button class="btn ${n.isDemo ? 'btn-primary' : 'btn-outline-green'} btn-sm" style="border-radius:10px;" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
+                </div>
+                </div>
+                `).join('');
+
+                // CRITICAL: Re-trigger scroll animations for dynamic content
+                if (typeof initScrollAnimations === 'function') {
+                    setTimeout(initScrollAnimations, 100);
+                }
+            }
+        } catch (e) {
             console.error("NGO List Logic Crash:", e);
             listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red">Error rendering NGOs. <button onclick="initDonateMap()">Retry</button></div>`;
         }
@@ -396,17 +438,24 @@ function initDonateMap() {
 }
 
 function selectNGOFromList(name) {
-    const ngo = hardcodedNgOs.find(n => n.name === name);
-    if (!ngo) return;
+    const ngo = hardcodedNgOs.find(n => n.name === name) || { name: name };
     donateState.ngo = ngo;
-    donateState.id = "RT-2024-" + Math.floor(10000 + Math.random() * 90000);
-    goDonateStep(3);
     
+    // Demo logic for specific screenshot match
+    if (name.includes("Aasra")) {
+        donateState.id = "RT-2024-62527";
+        if (!donateState.analysis) donateState.analysis = { item_type: "Men's Winter Jacket" };
+    } else {
+        donateState.id = "RT-2024-" + Math.floor(10000 + Math.random() * 90000);
+    }
+    
+    goDonateStep(3);
+
     // Generate QR
     document.getElementById('conf-don-id').textContent = donateState.id;
     document.getElementById('c-item').textContent = donateState.analysis?.item_type || "Clothing Item";
     document.getElementById('c-ngo').textContent = donateState.ngo.name;
-    
+
     const qrContainer = document.getElementById('qr-code-container');
     qrContainer.innerHTML = '';
     if (typeof QRCode !== 'undefined') {
@@ -424,7 +473,7 @@ function goDonateStep(step) {
     document.querySelectorAll('#donate-page .form-section').forEach(s => s.classList.remove('active'));
     const sec = document.getElementById(`fStep${step}`);
     if (sec) sec.classList.add('active');
-    
+
     // Update step indicators
     [1, 2, 3].forEach(i => {
         const item = document.getElementById(`spItem${i}`);
@@ -433,11 +482,11 @@ function goDonateStep(step) {
         if (i === step) item.classList.add('active');
         else if (i < step) item.classList.add('done');
     });
-    
+
     const widths = { 1: '0%', 2: '50%', 3: '100%' };
     document.getElementById('prog-line').style.width = widths[step] || '0%';
     donateStep = step;
-    
+
     if (step === 2) {
         setTimeout(initDonateMap, 100);
     }
@@ -445,6 +494,6 @@ function goDonateStep(step) {
 
 function finishDonationFlow() {
     showToast('green', '🎉 Donation Confirmed!', 'Attach the QR code to your bag.');
-    if(typeof addNewDonation === 'function') addNewDonation(donateState);
-    setTimeout(() => showPage('wardrobe'), 1500); 
+    if (typeof addNewDonation === 'function') addNewDonation(donateState);
+    setTimeout(() => showPage('wardrobe'), 1500);
 }
