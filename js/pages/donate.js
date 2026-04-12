@@ -49,22 +49,36 @@ function renderDonate() {
         <div class="photo-drop-text"><strong>Take a picture</strong> or upload from gallery</div>
       </div>
 
-      <!-- AI LOADING -->
-      <div id="ai-loading" style="display:none; text-align:center; padding:30px;">
-        <div style="font-size:30px; animation:spin 2s linear infinite; display:inline-block;">🤖</div>
-        <div style="margin-top:12px; font-weight:600; color:var(--primary-green);">Anthropic Claude AI is analyzing your item...</div>
-      </div>
+      <!-- AI ANALYSIS MODAL -->
+      <div class="modal-overlay" id="ai-modal">
+        <div class="modal" style="padding:0; overflow:hidden; max-width:400px; width:100%; position:relative;">
+          <!-- Close Button -->
+          <button style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:20px; cursor:pointer; color:var(--muted-gray); z-index:10;" onclick="closeAiModal()">✖</button>
+          
+          <!-- AI LOADING -->
+          <div id="ai-loading" style="display:none; text-align:center; padding:40px 20px;">
+            <div style="font-size:40px; animation:spin 2s linear infinite; display:inline-block; margin-bottom:16px;">🤖</div>
+            <div style="font-weight:700; font-size:18px; color:var(--dark-navy);">Gemini 2.5 Flash</div>
+            <div style="margin-top:8px; font-size:14px; font-weight:600; color:var(--primary-green);">Analyzing your item...</div>
+          </div>
 
-      <!-- AI RESULT CARD -->
-      <div id="ai-result-card" style="display:none; background:var(--card-bg); border-radius:12px; border:1.5px solid var(--border-color); padding:20px; margin-top:20px;">
-        <div style="font-size:14px; font-weight:700; color:var(--primary-green); margin-bottom:12px;">✅ AI Analysis Complete</div>
-        <div class="grid-2" style="gap:16px;">
-          <div><span style="font-size:12px; color:var(--muted-gray);">Detected Item</span><div style="font-weight:700;" id="ai-res-type">...</div></div>
-          <div><span style="font-size:12px; color:var(--muted-gray);">Condition</span><div style="font-weight:700;" id="ai-res-cond">...</div></div>
-          <div><span style="font-size:12px; color:var(--muted-gray);">Best-Fit Category</span><div style="font-weight:700;" id="ai-res-cat">...</div></div>
-          <div><span style="font-size:12px; color:var(--muted-gray);">Recommended Match</span><div style="font-weight:700; color:var(--primary-green);" id="ai-res-ngo">...</div></div>
+          <!-- AI RESULT CARD -->
+          <div id="ai-result-card" style="display:none; background:var(--card-bg);">
+            <div style="background:var(--primary-green); color:white; padding:20px; text-align:center;">
+                <div style="font-size:32px; margin-bottom:8px;">✅</div>
+                <div style="font-size:18px; font-weight:700;">AI Analysis Complete</div>
+            </div>
+            <div style="padding:24px;">
+                <div class="grid-2" style="gap:16px;">
+                  <div><span style="font-size:12px; color:var(--muted-gray);">Detected Item</span><div style="font-weight:700;" id="ai-res-type">...</div></div>
+                  <div><span style="font-size:12px; color:var(--muted-gray);">Condition</span><div style="font-weight:700;" id="ai-res-cond">...</div></div>
+                  <div><span style="font-size:12px; color:var(--muted-gray);">Best-Fit Category</span><div style="font-weight:700;" id="ai-res-cat">...</div></div>
+                  <div><span style="font-size:12px; color:var(--muted-gray);">Recommended Match</span><div style="font-weight:700; color:var(--primary-green);" id="ai-res-ngo">...</div></div>
+                </div>
+                <button class="btn btn-primary" style="margin-top:24px; width:100%; justify-content:center;" onclick="closeAiModal(); goDonateStep(2); initDonateMap();">Continue to Nearest NGOs →</button>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-primary" style="margin-top:24px; width:100%; justify-content:center;" onclick="goDonateStep(2); initDonateMap();">Continue to Nearest NGOs →</button>
       </div>
     </div>
 
@@ -134,74 +148,117 @@ async function handlePhotoUpload(e) {
     const reader = new FileReader();
     reader.onload = async (ev) => {
         donateState.base64 = ev.target.result;
+        
+        // Show modal & loading state
+        const modal = document.getElementById('ai-modal');
+        if (modal) modal.classList.add('open');
         document.getElementById('ai-loading').style.display = 'block';
         document.getElementById('ai-result-card').style.display = 'none';
 
-        // Call the AI
-        const analysis = await callAnthropicVisionAPI(donateState.base64);
-        donateState.analysis = analysis;
+        try {
+            // Call the AI
+            const analysis = await callGeminiVisionAPI(donateState.base64);
+            donateState.analysis = analysis;
 
-        // Populate Card
-        document.getElementById('ai-res-type').textContent = analysis.item_type;
-        document.getElementById('ai-res-cond').textContent = analysis.condition;
-        document.getElementById('ai-res-cat').textContent = analysis.category;
-        document.getElementById('ai-res-ngo').textContent = analysis.suggested_use;
+            // Populate Card
+            document.getElementById('ai-res-type').textContent = analysis.item_type;
+            document.getElementById('ai-res-cond').textContent = analysis.condition;
+            document.getElementById('ai-res-cat').textContent = analysis.category;
+            document.getElementById('ai-res-ngo').textContent = analysis.suggested_use;
 
-        document.getElementById('ai-loading').style.display = 'none';
-        document.getElementById('ai-result-card').style.display = 'block';
+            document.getElementById('ai-loading').style.display = 'none';
+            document.getElementById('ai-result-card').style.display = 'block';
+        } catch (error) {
+            console.error("Analysis failed:", error);
+            showToast('orange', 'Analysis Failed', 'Something went wrong. Please try again.');
+            if (modal) modal.classList.remove('open');
+        }
     };
     reader.readAsDataURL(file);
 }
 
-// Fake/Real Anthropic API call
-async function callAnthropicVisionAPI(base64Image) {
-    const apiKey = localStorage.getItem('anthropic_key');
-    // If no key or demo mode, provide a realistic hardcoded mock result after 1.5s
+function closeAiModal() {
+    const modal = document.getElementById('ai-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+// Fake/Real Gemini API call
+async function callGeminiVisionAPI(base64Image) {
+    let apiKey = localStorage.getItem('gemini_key');
+    
+    // Hack for hackathon pure frontend to read .env file from document root if present
     if (!apiKey) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    item_type: "Men's Winter Jacket",
-                    condition: "Good",
-                    category: "Adult Winter Wear",
-                    suggested_use: "Aasra Relief Camp (1.8 km)"
-                });
-            }, 1500);
-        });
+        try {
+            // First try env.json (since some local servers block dotfiles like .env)
+            try {
+                const configResp = await fetch('/env.json');
+                if (configResp.ok) {
+                    const config = await configResp.json();
+                    apiKey = config.GEMINI_API_KEY || config.API_KEY;
+                }
+            } catch(e) { /* fallback */ }
+
+            // If still no apiKey, try .env
+            if (!apiKey) {
+                const envResp = await fetch('/.env');
+                if (envResp.ok) {
+                    const envText = await envResp.text();
+                    const keyLine = envText.split('\n').find(line => line.includes('GEMINI_API_KEY') || line.includes('API_KEY'));
+                    if (keyLine) {
+                        apiKey = keyLine.split('=')[1].trim().replace(/['"]/g, '');
+                    }
+                }
+            }
+        } catch(e) {
+            console.warn("Could not fetch API key files:", e);
+        }
+    }
+
+    // If no key, throw error instead of using hardcoded mock to prevent confusion
+    if (!apiKey) {
+        throw new Error("Missing GEMINI_API_KEY. Please ensure your .env file is set up properly.");
     }
 
     try {
+        // base64Image comes in as 'data:image/jpeg;base64,...'
+        const match = base64Image.match(/^data:(image\/[a-zA-Z]*);base64,([^"]*)$/);
+        const mimeType = match ? match[1] : "image/jpeg";
+        const b64Data = match ? match[2] : base64Image;
+
         const payload = {
-            model: "claude-3-sonnet-20240229", // Fallback to standard Claude version string
-            max_tokens: 300,
-            messages: [{
-                role: "user",
-                content: [
-                    { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64Image.split(',')[1] } },
-                    { type: "text", text: "Analyze this clothing item. Return ONLY valid JSON with keys: 'item_type' (e.g. Men's Winter Jacket), 'condition' (Good/Fair/Worn), 'category' (e.g. Adult Winter Wear), 'suggested_use' (closest matching ngo need category)." }
+            contents: [{
+                parts: [
+                    { text: "Analyze this image. If it is NOT a clothing item (e.g., a nature photo, animal, random object), return exactly this JSON: { 'item_type': 'Not a clothing item', 'condition': 'N/A', 'category': 'Invalid API Input', 'suggested_use': 'N/A' }. If it IS a clothing item, return ONLY valid JSON with exactly these keys: 'item_type' (e.g. Men's Winter Jacket, Silk Saree), 'condition' (Good/Fair/Worn), 'category' (e.g. Adult Winter Wear, Women's Clothing), 'suggested_use' (closest matching ngo need category)." },
+                    { inlineData: { mimeType: mimeType, data: b64Data } }
                 ]
-            }]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json"
+            }
         };
 
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
-                "x-api-key": apiKey,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-                "anthropic-dangerously-allow-custom-urls": "true" 
+                "Content-Type": "application/json"
             },
             body: JSON.stringify(payload)
         });
+        
         const data = await res.json();
-        const jsonStr = data.content[0].text;
-        const parsed = JSON.parse(jsonStr.substring(jsonStr.indexOf('{'), jsonStr.lastIndexOf('}') + 1));
+        
+        if (data.error) {
+            throw new Error(data.error.message);
+        }
+        
+        let jsonStr = data.candidates[0].content.parts[0].text;
+        // Clean markdown backticks if Gemini returns them
+        jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(jsonStr);
         return parsed;
     } catch(err) {
-        console.warn("API failed, using fallback:", err);
-        return {
-            item_type: "Men's Winter Jacket", condition: "Good", category: "Adult Winter Wear", suggested_use: "Aasra Relief Camp"
-        };
+        console.warn("API failed:", err);
+        throw new Error("Failed to analyze image. Please try again.");
     }
 }
 

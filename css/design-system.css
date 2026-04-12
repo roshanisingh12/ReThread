@@ -404,8 +404,11 @@ tr:hover td { background: var(--card-bg); }
   background: var(--dark-navy);
   color: #fff;
 }
-.bg-dark .section-title { color: #fff; }
-.bg-dark .section-label { background: rgba(255,255,255,0.1); color: #81C784; }
+.bg-dark .section-title    { color: #fff; }
+.bg-dark .section-subtitle { color: rgba(255,255,255,0.7); }
+.bg-dark .section-label    { background: rgba(255,255,255,0.1); color: #81C784; }
+.bg-dark .form-label       { color: rgba(255,255,255,0.85); }
+.bg-dark p                 { color: rgba(255,255,255,0.7); }
 
 .bg-green { background: var(--light-green); }
 .bg-card  { background: var(--card-bg); }

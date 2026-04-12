@@ -2,6 +2,21 @@
 // APP.JS — Main Router & Global Logic
 // ════════════════════════════════════════
 
+// ── FIREBASE INITIALIZATION ───────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyD1W9lgDDggHAo7VO57d9Cz2ZfaK_p4-g0",
+  authDomain: "rethread-e7afe.firebaseapp.com",
+  projectId: "rethread-e7afe",
+  storageBucket: "rethread-e7afe.firebasestorage.app",
+  messagingSenderId: "1089027360405",
+  appId: "1:1089027360405:web:fb93dea92ed00b57217d9c",
+  measurementId: "G-HKXHS3NSFG"
+};
+
+if (typeof window.firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 let currentPage = 'home';
 let donateStep = 1;
 let donateCondition = 'Good';
@@ -15,6 +30,7 @@ const pageRenderers = {
     volunteer: renderVolunteer,
     ngo: renderNGO,
     howitworks: renderHowItWorks,
+    login: typeof renderLogin !== 'undefined' ? renderLogin : () => '<h2>Login missing</h2>',
 };
 
 function showPage(page) {
@@ -272,6 +288,37 @@ function updateZonePopup(el, zone, urgency, w, c, b) {
         bars[2].querySelector('.progress-bar-fill').style.width = b;
         bars[2].querySelector('.zone-need-pct').textContent = b;
     }
+}
+
+// ── FIREBASE AUTH LISTENER ────────────────
+if (typeof window.firebase !== 'undefined') {
+    firebase.auth().onAuthStateChanged((user) => {
+        const navLoginBtn = document.getElementById('nav-login-btn');
+        const mobileLoginBtn = document.getElementById('mobile-login-btn');
+        
+        if (user) {
+            // User is signed in
+            const name = user.displayName || user.email.split('@')[0];
+            if (navLoginBtn) {
+                navLoginBtn.textContent = 'Sign Out';
+                navLoginBtn.onclick = handleSignOut;
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.textContent = 'Sign Out';
+                mobileLoginBtn.onclick = handleSignOut;
+            }
+        } else {
+            // No user is signed in
+            if (navLoginBtn) {
+                navLoginBtn.textContent = 'Login';
+                navLoginBtn.onclick = () => showPage('login');
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.textContent = 'Login';
+                mobileLoginBtn.onclick = () => showPage('login');
+            }
+        }
+    });
 }
 
 // ── INIT ──────────────────────────────────

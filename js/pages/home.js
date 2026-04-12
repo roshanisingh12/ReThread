@@ -34,9 +34,9 @@ function renderHome() {
               </div>
               <div class="phone-clothes-card" style="text-align:center;padding:30px 15px">
                 <div style="font-size:70px;margin-bottom:10px">🧥</div>
-                <div style="font-weight:800;font-size:20px;color:var(--dark-navy)">Men's Winter Jacket</div>
-                <div style="color:var(--muted-gray);font-size:15px;margin-top:6px;margin-bottom:24px">Condition: Good</div>
-                <div style="background:rgba(74, 222, 128, 0.15);color:var(--primary-green);padding:12px;border-radius:10px;font-size:14px;font-weight:700">
+                <div style="font-weight:800;font-size:20px;color:#E2E8F0">Men's Winter Jacket</div>
+                <div style="color:#94A3B8;font-size:15px;margin-top:6px;margin-bottom:24px">Condition: Good</div>
+                <div style="background:rgba(74, 222, 128, 0.15);color:#4ADE80;padding:12px;border-radius:10px;font-size:14px;font-weight:700">
                   🎯 Match: Aasra NGO (1.8 km)
                 </div>
               </div>
@@ -192,7 +192,7 @@ function renderHome() {
         <h2 class="section-title">Every Cloth Has a Story</h2>
         <p class="section-subtitle">ReThread gives each piece of clothing a digital passport — tracking every wear, every wash, every repair from wardrobe to the hands of someone who truly needs it.</p>
         <div class="features-list" style="margin-top:24px">
-          ${['Digital Clothing Passport (QR)','Wear Count Tracker','Fabric Health Score (0–100)','Wash & Repair History','Smart Donation Alerts','End-to-End Journey Tracking','Recycling Router'].map(f=>`
+          ${['Digital Clothing Passport (QR)', 'Wear Count Tracker', 'Fabric Health Score (0–100)', 'Wash & Repair History', 'Smart Donation Alerts', 'End-to-End Journey Tracking', 'Recycling Router'].map(f => `
           <div class="feature-item">
             <div class="feature-check">✓</div>
             <span>${f}</span>
@@ -252,10 +252,10 @@ function renderHome() {
       <h2 class="section-title" style="text-align:center">Zero Mismatch.<br/>Every Single Time.</h2>
     </div>
     <div class="flowchart-wrapper">
-      ${['DONATION RECEIVED','AI READS TYPE + CONDITION','CHECKS ZONE DEMAND MAP','MATCHES NEAREST NGO NEED','BUNDLES WITH NEARBY DONATIONS','ASSIGNS BEST VOLUNTEER','DELIVERED SAME DAY'].map((s,i)=>`
+      ${['DONATION RECEIVED', 'AI READS TYPE + CONDITION', 'CHECKS ZONE DEMAND MAP', 'MATCHES NEAREST NGO NEED', 'BUNDLES WITH NEARBY DONATIONS', 'ASSIGNS BEST VOLUNTEER', 'DELIVERED SAME DAY'].map((s, i) => `
       <div class="flow-step">
-        <div class="flow-box ${i===0?'active-flow':i===6?'active-flow-orange':''} fade-up" style="transition-delay:${i*0.1}s">${s}</div>
-        ${i<6?'<div class="flow-arrow"></div>':''}
+        <div class="flow-box ${i === 0 ? 'active-flow' : i === 6 ? 'active-flow-orange' : ''} fade-up" style="transition-delay:${i * 0.1}s">${s}</div>
+        ${i < 6 ? '<div class="flow-arrow"></div>' : ''}
       </div>`).join('')}
     </div>
     <div class="grid-3 ai-cards">
@@ -287,28 +287,54 @@ function renderHome() {
     </div>
     <div class="india-map-container fade-up">
       <div style="display:flex;gap:32px;flex-wrap:wrap">
-        <svg class="india-map-svg" viewBox="0 0 400 450" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M160,30 L180,25 L220,35 L250,60 L260,90 L255,110 L275,130 L280,160 L270,185 L290,210 L285,240 L265,270 L250,300 L230,330 L210,360 L200,400 L190,360 L170,325 L150,295 L135,265 L120,240 L110,210 L105,180 L120,155 L115,125 L130,100 L140,70 L150,45 Z" fill="#E8F5E9" stroke="#1B6B3A" stroke-width="2"/>
-          <path d="M160,30 L180,25 L220,35 L250,60 L200,50 Z" fill="#E53935" opacity="0.7"/>
-          <path d="M250,60 L260,90 L255,110 L275,130 L240,120 L220,90 Z" fill="#E53935" opacity="0.7"/>
-          <path d="M105,180 L120,155 L115,125 L130,100 L150,130 L155,165 L130,190 Z" fill="#FB8C00" opacity="0.7"/>
-          <path d="M120,240 L135,265 L150,295 L130,285 L110,260 L110,230 Z" fill="#1B6B3A" opacity="0.7"/>
-          <path d="M265,270 L280,240 L260,230 L245,255 L250,280 Z" fill="#E53935" opacity="0.7"/>
-          <path d="M195,200 L215,195 L225,215 L210,230 L190,225 Z" fill="#FB8C00" opacity="0.7"/>
-          <!-- Map pins -->
-          <circle cx="195" cy="215" r="6" fill="#E53935"/>
-          <circle cx="175" cy="100" r="7" fill="#E53935"/>
-          <circle cx="240" cy="80" r="6" fill="#E53935"/>
-          <circle cx="130" cy="175" r="6" fill="#FB8C00"/>
-          <circle cx="130" cy="275" r="7" fill="#1B6B3A"/>
-          <circle cx="265" cy="255" r="6" fill="#E53935"/>
-          <!-- Labels -->
-          <text x="135" y="85" font-size="9" fill="#0D1B2A" font-weight="600">Delhi</text>
-          <text x="235" y="68" font-size="9" fill="#0D1B2A" font-weight="600">Kolkata</text>
-          <text x="90" y="168" font-size="9" fill="#0D1B2A" font-weight="600">Mumbai</text>
-          <text x="90" y="268" font-size="9" fill="#0D1B2A" font-weight="600">Bengaluru</text>
-          <text x="203" y="212" font-size="9" fill="#0D1B2A" font-weight="600">Hyderabad</text>
-          <text x="270" y="258" font-size="9" fill="#0D1B2A" font-weight="600">Chennai</text>
+        <svg class="india-map-svg" viewBox="0 0 400 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main India outline — traced from real lat/lon (x=(lon−68.7)×12.54+20, y=(35.7−lat)×14.86+20) -->
+          <path d="
+            M 78,52
+            L 110,28 L 145,36 L 182,108
+            L 238,118 L 278,145
+            L 314,152 L 370,138
+            L 372,162 L 358,188 L 345,215 L 330,232
+            L 312,218 L 280,240 L 262,248
+            L 248,274 L 235,300 L 220,328
+            L 205,358 L 195,388 L 175,422 L 132,436
+            L 120,429 L 109,409 L 96,366
+            L 82,326 L 70,270
+            L 71,252 L 72,240 L 69,225
+            L 58,220 L 44,247 L 30,220
+            L 22,207 L 20,194
+            L 36,182 L 40,140
+            L 72,110 L 90,94 L 98,77 L 88,57
+            Z"
+            fill="#E8F5E9" stroke="#1B6B3A" stroke-width="2.5" stroke-linejoin="round"/>
+
+          <!-- High need zones (red) -->
+          <ellipse cx="127" cy="118" rx="26" ry="19" fill="#E53935" opacity="0.55"/>   <!-- Delhi -->
+          <ellipse cx="267" cy="222" rx="20" ry="15" fill="#E53935" opacity="0.55"/>   <!-- Kolkata -->
+          <ellipse cx="165" cy="352" rx="19" ry="14" fill="#E53935" opacity="0.55"/>   <!-- Chennai -->
+
+          <!-- Medium need zones (orange) -->
+          <ellipse cx="70"  cy="265" rx="22" ry="16" fill="#FB8C00" opacity="0.55"/>   <!-- Mumbai -->
+          <ellipse cx="143" cy="292" rx="20" ry="15" fill="#FB8C00" opacity="0.55"/>   <!-- Hyderabad -->
+
+          <!-- Surplus zone (green) -->
+          <ellipse cx="131" cy="356" rx="19" ry="14" fill="#1B6B3A" opacity="0.55"/>   <!-- Bengaluru -->
+
+          <!-- City dots -->
+          <circle cx="127" cy="118" r="5.5" fill="#E53935"/>   <!-- Delhi   28.6°N 77.2°E -->
+          <circle cx="267" cy="222" r="5.5" fill="#E53935"/>   <!-- Kolkata 22.6°N 88.4°E -->
+          <circle cx="70"  cy="265" r="5.5" fill="#FB8C00"/>   <!-- Mumbai  19.1°N 72.9°E -->
+          <circle cx="143" cy="292" r="5.5" fill="#FB8C00"/>   <!-- Hyderabad 17.4°N 78.5°E -->
+          <circle cx="131" cy="356" r="5.5" fill="#1B6B3A"/>   <!-- Bengaluru 13.0°N 77.6°E -->
+          <circle cx="165" cy="352" r="5.5" fill="#E53935"/>   <!-- Chennai  13.1°N 80.3°E -->
+
+          <!-- City labels -->
+          <text x="82"  y="112" font-size="9.5" fill="#0D1B2A" font-weight="700">Delhi</text>
+          <text x="272" y="220" font-size="9.5" fill="#0D1B2A" font-weight="700">Kolkata</text>
+          <text x="8"   y="268" font-size="9.5" fill="#0D1B2A" font-weight="700">Mumbai</text>
+          <text x="148" y="289" font-size="9.5" fill="#0D1B2A" font-weight="700">Hyderabad</text>
+          <text x="40"  y="366" font-size="9.5" fill="#0D1B2A" font-weight="700">Bengaluru</text>
+          <text x="170" y="349" font-size="9.5" fill="#0D1B2A" font-weight="700">Chennai</text>
         </svg>
         <div style="flex:1;min-width:260px">
           <div class="zone-popup fade-up fade-up-delay-2">
@@ -366,13 +392,13 @@ function renderHome() {
     </div>
     <div class="hub-grid">
       ${[
-        ['🏪','Kirana Stores','2,400 hubs'],
-        ['🏢','Apartment Gates','1,800 hubs'],
-        ['⛽','Petrol Pumps','900 hubs'],
-        ['🏫','Schools & Colleges','650 hubs'],
-        ['🕌','Religious Places','480 hubs'],
-        ['📮','Post Offices','3,200 hubs']
-      ].map(([e,t,c])=>`
+      ['🏪', 'Kirana Stores', '2,400 hubs'],
+      ['🏢', 'Apartment Gates', '1,800 hubs'],
+      ['⛽', 'Petrol Pumps', '900 hubs'],
+      ['🏫', 'Schools & Colleges', '650 hubs'],
+      ['🕌', 'Religious Places', '480 hubs'],
+      ['📮', 'Post Offices', '3,200 hubs']
+    ].map(([e, t, c]) => `
       <div class="hub-item fade-up">
         <span class="hub-emoji">${e}</span>
         <div class="hub-type">${t}</div>
@@ -391,7 +417,7 @@ function renderHome() {
       <p class="section-subtitle" style="margin:0 auto;text-align:center">Return trip pickups mean zero extra cost for delivery.</p>
     </div>
     <div class="partner-logos">
-      ${['📦 Flipkart','🛵 Zomato','🛒 Swiggy','✉️ India Post','🚚 Porter','🏃 Dunzo','📬 Delhivery','🛺 Rapido'].map(p=>`
+      ${['📦 Flipkart', '🛵 Zomato', '🛒 Swiggy', '✉️ India Post', '🚚 Porter', '🏃 Dunzo', '📬 Delhivery', '🛺 Rapido'].map(p => `
       <div class="partner-logo-item fade-up">${p}</div>`).join('')}
     </div>
   </div>
