@@ -6,9 +6,14 @@
 window.envConfig = {};
 
 async function loadEnv() {
-    // Priority list: env.example (accessible on local servers), .env.example, .env
+    // 1. Try Local Storage (User Setup)
+    const localGemini = localStorage.getItem('RT_GEMINI_KEY');
+    const localFirebase = localStorage.getItem('RT_FIREBASE_KEY');
+    if (localGemini) window.envConfig.GEMINI_API_KEY = localGemini;
+    if (localFirebase) window.envConfig.FIREBASE_API_KEY = localFirebase;
+
+    // 2. Try URL Fetch (env.example)
     const sources = ['/env.example', '/.env.example', '/.env'];
-    
     for (const source of sources) {
         try {
             const resp = await fetch(source);
@@ -22,35 +27,48 @@ async function loadEnv() {
                     if (parts.length >= 2) {
                         const key = parts[0].trim();
                         const value = parts.slice(1).join('=').trim().replace(/['"]/g, '');
-                        window.envConfig[key] = value;
+                        // Only override if not already in envConfig from localStorage or previous file
+                        if (!window.envConfig[key] || window.envConfig[key].includes('PASTE_YOUR')) {
+                            window.envConfig[key] = value;
+                        }
                     }
                 });
                 console.log(`Environment loaded from ${source}`);
-                return; // Stop once we find a valid file
+                return; 
             }
         } catch (e) {
             console.warn(`Could not load from ${source}:`, e);
         }
     }
-    
-    console.error('No environment configuration file found (.env.example or .env)');
 }
 
 async function initApp() {
-    // Show splash/loading if needed
+    // Show splash/loading
     const appEl = document.getElementById('app');
     if (appEl) appEl.innerHTML = '<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:var(--dark-navy)"><div style="font-size:40px;animation:spin 2s linear infinite">🔄</div><div style="font-weight:600">Initializing ReThread...</div></div>';
 
     await loadEnv();
 
+    // Check if configuration is missing
+    const isConfigMissing = !window.envConfig.GEMINI_API_KEY || 
+                             window.envConfig.GEMINI_API_KEY.includes('PASTE_YOUR') || 
+                            !window.envConfig.FIREBASE_API_KEY ||
+                             window.envConfig.FIREBASE_API_KEY.includes('PASTE_YOUR');
+
+    if (isConfigMissing) {
+        document.getElementById('setup-modal').classList.add('open');
+        if (appEl) appEl.innerHTML = ''; // Clear splash
+        return;
+    }
+
     const firebaseConfig = {
         apiKey: window.envConfig.FIREBASE_API_KEY,
-        authDomain: window.envConfig.FIREBASE_AUTH_DOMAIN,
-        projectId: window.envConfig.FIREBASE_PROJECT_ID,
-        storageBucket: window.envConfig.FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: window.envConfig.FIREBASE_MESSAGING_SENDER_ID,
-        appId: window.envConfig.FIREBASE_APP_ID,
-        measurementId: window.envConfig.FIREBASE_MEASUREMENT_ID
+        authDomain: window.envConfig.FIREBASE_AUTH_DOMAIN || "rethread-e7afe.firebaseapp.com",
+        projectId: window.envConfig.FIREBASE_PROJECT_ID || "rethread-e7afe",
+        storageBucket: window.envConfig.FIREBASE_STORAGE_BUCKET || "rethread-e7afe.firebasestorage.app",
+        messagingSenderId: window.envConfig.FIREBASE_MESSAGING_SENDER_ID || "1089027360405",
+        appId: window.envConfig.FIREBASE_APP_ID || "1:1089027360405:web:fb93dea92ed00b57217d9c",
+        measurementId: window.envConfig.FIREBASE_MEASUREMENT_ID || "G-HKXHS3NSFG"
     };
 
     if (typeof window.firebase !== 'undefined' && !firebase.apps.length && firebaseConfig.apiKey) {
@@ -59,6 +77,25 @@ async function initApp() {
     }
 
     showPage('home');
+}
+
+function saveSetupConfig() {
+    const gemini = document.getElementById('setup-gemini-key').value.trim();
+    const firebaseKey = document.getElementById('setup-firebase-key').value.trim();
+
+    if (!gemini || !firebaseKey) {
+        showToast('orange', 'Configuration Missing', 'Please provide both API keys.');
+        return;
+    }
+
+    localStorage.setItem('RT_GEMINI_KEY', gemini);
+    localStorage.setItem('RT_FIREBASE_KEY', firebaseKey);
+    
+    showToast('green', 'Setup Complete', 'Configuration saved. Launching app...');
+    
+    // Hide modal and restart init
+    document.getElementById('setup-modal').classList.remove('open');
+    initApp();
 }
 
 function setupAuthListener() {
