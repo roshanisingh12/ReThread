@@ -9,7 +9,18 @@ const hardcodedNgOs = [
     { name: "Goonj - Regional Drop", lat: 18.5204, lng: 73.8567, category: "Mixed Clothing", badge: "🔴 Urgent" },
     { name: "Smile Foundation Center", lat: 28.6139, lng: 77.2090, category: "Children's Clothing", badge: "🟡 Medium Needs" },
     { name: "HelpAge India Hub", lat: 19.0760, lng: 72.8777, category: "Senior Support", badge: "🟢 Normal" },
-    { name: "Robin Hood Army Point", lat: 12.9716, lng: 77.5946, category: "Footwear & More", badge: "🟡 Medium Needs" }
+    { name: "Robin Hood Army Point", lat: 12.9716, lng: 77.5946, category: "Footwear & More", badge: "🟡 Medium Needs" },
+    { name: "Kolkata Relief Fund", lat: 22.5726, lng: 88.3639, category: "Winter Wear", badge: "🔴 Urgent" },
+    { name: "Chennai Care Point", lat: 13.0827, lng: 80.2707, category: "Summer Essentials", badge: "🟢 Normal" },
+    { name: "Hyderabad Hope", lat: 17.3850, lng: 78.4867, category: "School Uniforms", badge: "🟡 Medium Needs" },
+    { name: "Jaipur Heritage Aid", lat: 26.9124, lng: 75.7873, category: "Traditional Wear", badge: "🟢 Normal" },
+    { name: "Ahmedabad Uplift", lat: 23.0225, lng: 72.5714, category: "Blankets & Linens", badge: "🔴 Urgent" },
+    { name: "Lucknow Unity Hub", lat: 26.8467, lng: 80.9462, category: "Casual Wear", badge: "🟡 Medium Needs" },
+    { name: "Guwahati Green", lat: 26.1445, lng: 91.7362, category: "Eco-friendly Fiber", badge: "🟢 Normal" },
+    // PAN-INDIA BACKUPS (Always Shown)
+    { name: "ReThread Global Hub", lat: 20.5937, lng: 78.9629, category: "Universal Aid", badge: "🚀 Pan-India Support", isBackup: true },
+    { name: "Smile Foundation (Backup)", lat: 28.5355, lng: 77.3910, category: "Child Support", badge: "🏢 Official Partner", isBackup: true },
+    { name: "Goonj Main Center", lat: 28.5276, lng: 77.2623, category: "Disaster Relief", badge: "📦 Global Reach", isBackup: true }
 ];
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -20,7 +31,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
               Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return (R * c).toFixed(1);
+    return Number((R * c).toFixed(1)); // Return as number for sorting
 }
 
 function renderDonate() {
@@ -320,22 +331,45 @@ function initDonateMap() {
         const listContainer = document.getElementById('ngo-list-container');
         if (!listContainer) return;
 
-        // Sort by distance
-        const sorted = hardcodedNgOs.map(n => {
-            return { ...n, realDist: calculateDistance(uLat, uLng, n.lat, n.lng) };
-        }).sort((a, b) => a.realDist - b.realDist);
+        console.log(`Matching NGOs for location: ${uLat}, ${uLng}`);
 
-        listContainer.innerHTML = sorted.map((n, i) => `
-        <div class="fade-up" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap">
-          <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border-color);">🏥</div>
+        // 1. Calculate distances
+        const annotated = hardcodedNgOs.map(n => {
+            const dist = calculateDistance(uLat, uLng, n.lat, n.lng);
+            return { ...n, realDist: dist };
+        });
+
+        // 2. Filter: within 600km OR marked as Pan-India backup
+        let filtered = annotated.filter(n => n.realDist <= 600 || n.isBackup);
+
+        // 3. Fallback: if somehow list is empty, show backups only
+        if (filtered.length === 0) {
+            filtered = annotated.filter(n => n.isBackup);
+        }
+
+        // 4. Sort by distance
+        filtered.sort((a, b) => a.realDist - b.realDist);
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted-gray); background:white; border-radius:12px; border:1px dashed var(--border-color);">
+                <div style="font-size:32px; margin-bottom:12px;">📍</div>
+                <div style="font-weight:700; color:var(--dark-navy);">No NGOs found within 600km</div>
+                <p style="font-size:13px; margin-top:4px;">Try searching in a different city or check back soon.</p>
+            </div>`;
+            return;
+        }
+
+        listContainer.innerHTML = filtered.map((n, i) => `
+        <div class="fade-up" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap; animation-delay: ${i * 0.1}s">
+          <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border-color); flex-shrink:0;">${n.isBackup ? '🚀' : '🏥'}</div>
           <div style="flex:1; min-width:min(200px, 100vw)">
             <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
-            <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist} km away · <strong>Needs: ${n.category}</strong></div>
+            <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist > 1000 ? 'Regional Hub' : n.realDist + ' km away'} · <strong>Needs: ${n.category}</strong></div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:11px; font-weight:700; margin-bottom:8px; padding:4px 8px; background:white; border-radius:4px; display:inline-block; border:1px solid var(--border-color);">${n.badge}</div>
             <br/>
-            <button class="btn btn-outline-green btn-sm" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
+            <button class="btn btn-primary btn-sm" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
           </div>
         </div>
         `).join('');
