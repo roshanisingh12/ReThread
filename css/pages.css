@@ -31,7 +31,10 @@
    ════════════════════════════════════════ */
 #donate-page {
     min-height: 100vh;
-    padding-top: 70px;
+}
+
+#donate-page .page-header {
+    padding-top: 20px;
 }
 
 .donate-grid {
@@ -498,7 +501,6 @@
    ════════════════════════════════════════ */
 #wardrobe-page {
     min-height: 100vh;
-    padding-top: 70px;
 }
 
 .wardrobe-stats-bar {
@@ -925,13 +927,12 @@
    ════════════════════════════════════════ */
 #volunteer-page {
     min-height: 100vh;
-    padding-top: 70px;
 }
 
 .dashboard-layout {
     display: grid;
     grid-template-columns: 260px 1fr;
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
     gap: 0;
 }
 
@@ -939,8 +940,8 @@
     background: var(--dark-navy);
     padding: 32px 16px;
     position: sticky;
-    top: 70px;
-    height: calc(100vh - 70px);
+    top: 0;
+    height: 100vh;
     overflow-y: auto;
 }
 
@@ -1253,7 +1254,6 @@
    ════════════════════════════════════════ */
 #ngo-page {
     min-height: 100vh;
-    padding-top: 70px;
 }
 
 .ngo-header {
@@ -1362,7 +1362,6 @@
    ════════════════════════════════════════ */
 #marketplace-page {
     min-height: 100vh;
-    padding-top: 70px;
 }
 
 .marketplace-toolbar {
@@ -1501,7 +1500,6 @@
    ════════════════════════════════════════ */
 #howitworks-page {
     min-height: 100vh;
-    padding-top: 70px;
 }
 
 .cloth-id-visual {

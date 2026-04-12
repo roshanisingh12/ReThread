@@ -3,7 +3,7 @@
    ════════════════════════════════════════ */
 
 #navbar {
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
@@ -637,6 +637,10 @@
     }
 
     #stats-row {
+        display: none;
+    }
+
+    #impact {
         display: none;
     }
 

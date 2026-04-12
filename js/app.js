@@ -6,8 +6,8 @@
 window.envConfig = {};
 
 async function loadEnv() {
-    // Try .env.example first (as requested by user)
-    const sources = ['/.env.example', '/.env'];
+    // Priority list: env.example (accessible on local servers), .env.example, .env
+    const sources = ['/env.example', '/.env.example', '/.env'];
     
     for (const source of sources) {
         try {
@@ -88,6 +88,18 @@ function setupAuthListener() {
             }
         }
     });
+}
+
+function getAuthUser() {
+    if (typeof window.firebase === 'undefined' || firebase.apps.length === 0) {
+        return null;
+    }
+    try {
+        return firebase.auth().currentUser;
+    } catch (e) {
+        console.warn("Firebase Auth not ready:", e);
+        return null;
+    }
 }
 
 let currentPage = 'home';

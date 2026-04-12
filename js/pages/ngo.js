@@ -16,7 +16,7 @@ function renderNGO() {
     
     return `
 <div id="ngo-page">
-  <div class="page-header" style="padding-top:40px; padding-bottom:40px;">
+  <div class="page-header" style="padding-top:20px; padding-bottom:40px;">
     <div class="container">
       <div class="ngo-header fade-up" style="display:flex; align-items:center; gap:24px; padding-top:24px;">
         <div style="font-size:64px; background:var(--card-bg); padding:16px; border-radius:16px;">🏕️</div>

@@ -3,7 +3,7 @@
 // ════════════════════════════════════════
 
 function renderProfile() {
-    const user = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+    const user = getAuthUser();
     
     if (user) {
         const name = user.displayName || user.email.split('@')[0];
@@ -11,7 +11,7 @@ function renderProfile() {
         const initial = name.charAt(0).toUpperCase();
         
         return `
-<div id="profile-page" style="min-height: 100vh; padding-top: 100px;">
+<div id="profile-page" style="min-height: 100vh; padding-top: 20px;">
   <div class="container section" style="max-width:600px; margin:0 auto; text-align:center;">
     <div style="width:80px; height:80px; border-radius:50%; background:var(--primary-green); color:#fff; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; margin:0 auto 20px;">${initial}</div>
     <h1 style="font-size:28px; font-weight:800; color:var(--dark-navy); margin-bottom:8px;">${name}</h1>
@@ -34,7 +34,7 @@ function renderProfile() {
 </div>`;
     } else {
         return `
-<div id="profile-page" style="min-height: 100vh; padding-top: 100px;">
+<div id="profile-page" style="min-height: 100vh; padding-top: 20px;">
   <div class="container section" style="max-width:600px; margin:0 auto; text-align:center;">
     <div style="font-size:64px; margin-bottom:24px;">👤</div>
     <h1 style="font-size:28px; font-weight:800; color:var(--dark-navy); margin-bottom:16px;">Access Your Profile</h1>

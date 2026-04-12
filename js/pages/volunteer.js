@@ -2,7 +2,7 @@
 // VOLUNTEER DASHBOARD
 // ════════════════════════════════════════
 function renderVolunteer() {
-    const user = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+    const user = getAuthUser();
     const name = user ? (user.displayName || user.email.split('@')[0]) : 'Volunteer';
     const initial = name.charAt(0).toUpperCase();
 
