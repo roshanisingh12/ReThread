@@ -46,28 +46,32 @@ async function loadEnv() {
 }
 
 async function initApp() {
-    // Show splash/loading
-    const appEl = document.getElementById('app');
-    if (appEl) appEl.innerHTML = '<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:var(--dark-navy)"><div style="font-size:40px;animation:spin 2s linear infinite">🔄</div><div style="font-weight:600">Initializing ReThread...</div></div>';
+    try {
+        // Show splash/loading
+        const appEl = document.getElementById('app');
+        if (appEl) appEl.innerHTML = '<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:var(--dark-navy)"><div style="font-size:40px;animation:spin 2s linear infinite">🔄</div><div style="font-weight:600">Initializing ReThread...</div></div>';
 
-    await loadEnv();
+        await loadEnv();
 
-    const firebaseConfig = {
-        apiKey: window.envConfig.FIREBASE_API_KEY,
-        authDomain: window.envConfig.FIREBASE_AUTH_DOMAIN || "rethread-e7afe.firebaseapp.com",
-        projectId: window.envConfig.FIREBASE_PROJECT_ID || "rethread-e7afe",
-        storageBucket: window.envConfig.FIREBASE_STORAGE_BUCKET || "rethread-e7afe.firebasestorage.app",
-        messagingSenderId: window.envConfig.FIREBASE_MESSAGING_SENDER_ID || "1089027360405",
-        appId: window.envConfig.FIREBASE_APP_ID || "1:1089027360405:web:fb93dea92ed00b57217d9c",
-        measurementId: window.envConfig.FIREBASE_MEASUREMENT_ID || "G-HKXHS3NSFG"
-    };
+        const firebaseConfig = {
+            apiKey: window.envConfig.FIREBASE_API_KEY,
+            authDomain: window.envConfig.FIREBASE_AUTH_DOMAIN || "rethread-e7afe.firebaseapp.com",
+            projectId: window.envConfig.FIREBASE_PROJECT_ID || "rethread-e7afe",
+            storageBucket: window.envConfig.FIREBASE_STORAGE_BUCKET || "rethread-e7afe.firebasestorage.app",
+            messagingSenderId: window.envConfig.FIREBASE_MESSAGING_SENDER_ID || "1089027360405",
+            appId: window.envConfig.FIREBASE_APP_ID || "1:1089027360405:web:fb93dea92ed00b57217d9c",
+            measurementId: window.envConfig.FIREBASE_MEASUREMENT_ID || "G-HKXHS3NSFG"
+        };
 
-    if (typeof window.firebase !== 'undefined' && !firebase.apps.length && firebaseConfig.apiKey) {
-        firebase.initializeApp(firebaseConfig);
-        setupAuthListener();
+        if (typeof window.firebase !== 'undefined' && !firebase.apps.length && firebaseConfig.apiKey) {
+            firebase.initializeApp(firebaseConfig);
+            setupAuthListener();
+        }
+    } catch (e) {
+        console.error("Critical Startup Error:", e);
+    } finally {
+        showPage('home');
     }
-
-    showPage('home');
 }
 
 
