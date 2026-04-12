@@ -7,7 +7,7 @@ function renderHome() {
 
 <!-- ── HERO ──────────────────────────────── -->
 <section id="hero">
-  <div class="container" style="display:flex;gap:60px;align-items:center;padding-top:40px;padding-bottom:60px;flex-wrap:wrap">
+  <div class="container hero-container">
     <div class="hero-content">
       <div class="hero-label">🌱 Sustainable Donation</div>
       <h1 class="hero-headline">
@@ -20,7 +20,7 @@ function renderHome() {
         <button class="btn btn-outline-green btn-lg" onclick="showPage('howitworks')">See how it works</button>
       </div>
     </div>
-    <div class="hero-visual" style="flex:1;min-width:280px">
+    <div class="hero-visual" style="flex:1;min-width:min(280px, 100vw)">
       <div style="position:relative;display:inline-block">
         <div class="hero-float-badge badge-tl fade-up"><span>🤖</span> AI Matched</div>
         <div class="hero-float-badge badge-tr fade-up fade-up-delay-2"><span>📍</span> 1.8 km away</div>
@@ -336,7 +336,7 @@ function renderHome() {
           <text x="40"  y="366" font-size="9.5" fill="#0D1B2A" font-weight="700">Bengaluru</text>
           <text x="170" y="349" font-size="9.5" fill="#0D1B2A" font-weight="700">Chennai</text>
         </svg>
-        <div style="flex:1;min-width:260px">
+        <div style="flex:1;min-width:min(260px, 100vw)">
           <div class="zone-popup fade-up fade-up-delay-2">
             <div class="zone-popup-title">📍 Dharavi, Mumbai</div>
             <div class="zone-need-row">

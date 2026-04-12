@@ -91,7 +91,7 @@ function renderDonate() {
         ${hardcodedNgOs.map((n, i) => `
         <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap">
           <div style="font-size:24px;">🏥</div>
-          <div style="flex:1; min-width:200px">
+          <div style="flex:1; min-width:min(200px, 100vw)">
             <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
             <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.dist} away · <strong>Needs: ${n.need}</strong></div>
           </div>
@@ -184,35 +184,9 @@ function closeAiModal() {
 
 // Fake/Real Gemini API call
 async function callGeminiVisionAPI(base64Image) {
-    let apiKey = localStorage.getItem('gemini_key');
+    let apiKey = window.envConfig.GEMINI_API_KEY || localStorage.getItem('gemini_key');
     
-    // Hack for hackathon pure frontend to read .env file from document root if present
-    if (!apiKey) {
-        try {
-            // First try env.json (since some local servers block dotfiles like .env)
-            try {
-                const configResp = await fetch('/env.json');
-                if (configResp.ok) {
-                    const config = await configResp.json();
-                    apiKey = config.GEMINI_API_KEY || config.API_KEY;
-                }
-            } catch(e) { /* fallback */ }
-
-            // If still no apiKey, try .env
-            if (!apiKey) {
-                const envResp = await fetch('/.env');
-                if (envResp.ok) {
-                    const envText = await envResp.text();
-                    const keyLine = envText.split('\n').find(line => line.includes('GEMINI_API_KEY') || line.includes('API_KEY'));
-                    if (keyLine) {
-                        apiKey = keyLine.split('=')[1].trim().replace(/['"]/g, '');
-                    }
-                }
-            }
-        } catch(e) {
-            console.warn("Could not fetch API key files:", e);
-        }
-    }
+    // Config is now centrally managed in app.js via loadEnv()
 
     // If no key, throw error instead of using hardcoded mock to prevent confusion
     if (!apiKey) {

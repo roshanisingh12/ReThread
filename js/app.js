@@ -3,18 +3,91 @@
 // ════════════════════════════════════════
 
 // ── FIREBASE INITIALIZATION ───────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyD1W9lgDDggHAo7VO57d9Cz2ZfaK_p4-g0",
-  authDomain: "rethread-e7afe.firebaseapp.com",
-  projectId: "rethread-e7afe",
-  storageBucket: "rethread-e7afe.firebasestorage.app",
-  messagingSenderId: "1089027360405",
-  appId: "1:1089027360405:web:fb93dea92ed00b57217d9c",
-  measurementId: "G-HKXHS3NSFG"
-};
+window.envConfig = {};
 
-if (typeof window.firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+async function loadEnv() {
+    // Try .env.example first (as requested by user)
+    const sources = ['/.env.example', '/.env'];
+    
+    for (const source of sources) {
+        try {
+            const resp = await fetch(source);
+            if (resp.ok) {
+                const text = await resp.text();
+                text.split('\n').forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine || trimmedLine.startsWith('#')) return;
+                    
+                    const parts = trimmedLine.split('=');
+                    if (parts.length >= 2) {
+                        const key = parts[0].trim();
+                        const value = parts.slice(1).join('=').trim().replace(/['"]/g, '');
+                        window.envConfig[key] = value;
+                    }
+                });
+                console.log(`Environment loaded from ${source}`);
+                return; // Stop once we find a valid file
+            }
+        } catch (e) {
+            console.warn(`Could not load from ${source}:`, e);
+        }
+    }
+    
+    console.error('No environment configuration file found (.env.example or .env)');
+}
+
+async function initApp() {
+    // Show splash/loading if needed
+    const appEl = document.getElementById('app');
+    if (appEl) appEl.innerHTML = '<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:var(--dark-navy)"><div style="font-size:40px;animation:spin 2s linear infinite">🔄</div><div style="font-weight:600">Initializing ReThread...</div></div>';
+
+    await loadEnv();
+
+    const firebaseConfig = {
+        apiKey: window.envConfig.FIREBASE_API_KEY,
+        authDomain: window.envConfig.FIREBASE_AUTH_DOMAIN,
+        projectId: window.envConfig.FIREBASE_PROJECT_ID,
+        storageBucket: window.envConfig.FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: window.envConfig.FIREBASE_MESSAGING_SENDER_ID,
+        appId: window.envConfig.FIREBASE_APP_ID,
+        measurementId: window.envConfig.FIREBASE_MEASUREMENT_ID
+    };
+
+    if (typeof window.firebase !== 'undefined' && !firebase.apps.length && firebaseConfig.apiKey) {
+        firebase.initializeApp(firebaseConfig);
+        setupAuthListener();
+    }
+
+    showPage('home');
+}
+
+function setupAuthListener() {
+    if (typeof window.firebase === 'undefined') return;
+    
+    firebase.auth().onAuthStateChanged((user) => {
+        const navLoginBtn = document.getElementById('nav-login-btn');
+        const mobileLoginBtn = document.getElementById('mobile-login-btn');
+        
+        if (user) {
+            if (navLoginBtn) {
+                navLoginBtn.textContent = 'Sign Out';
+                navLoginBtn.onclick = handleSignOut;
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.textContent = 'Sign Out';
+                mobileLoginBtn.onclick = handleSignOut;
+            }
+        } else {
+            if (navLoginBtn) {
+                navLoginBtn.textContent = 'Login';
+                navLoginBtn.onclick = () => showPage('login');
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.textContent = 'Login';
+                mobileLoginBtn.onclick = () => showPage('login');
+            }
+        }
+    });
 }
 
 let currentPage = 'home';
@@ -30,6 +103,7 @@ const pageRenderers = {
     volunteer: renderVolunteer,
     ngo: renderNGO,
     howitworks: renderHowItWorks,
+    profile: typeof renderProfile !== 'undefined' ? renderProfile : () => '<h2>Profile missing</h2>',
     login: typeof renderLogin !== 'undefined' ? renderLogin : () => '<h2>Login missing</h2>',
 };
 
@@ -290,36 +364,8 @@ function updateZonePopup(el, zone, urgency, w, c, b) {
     }
 }
 
-// ── FIREBASE AUTH LISTENER ────────────────
-if (typeof window.firebase !== 'undefined') {
-    firebase.auth().onAuthStateChanged((user) => {
-        const navLoginBtn = document.getElementById('nav-login-btn');
-        const mobileLoginBtn = document.getElementById('mobile-login-btn');
-        
-        if (user) {
-            // User is signed in
-            const name = user.displayName || user.email.split('@')[0];
-            if (navLoginBtn) {
-                navLoginBtn.textContent = 'Sign Out';
-                navLoginBtn.onclick = handleSignOut;
-            }
-            if (mobileLoginBtn) {
-                mobileLoginBtn.textContent = 'Sign Out';
-                mobileLoginBtn.onclick = handleSignOut;
-            }
-        } else {
-            // No user is signed in
-            if (navLoginBtn) {
-                navLoginBtn.textContent = 'Login';
-                navLoginBtn.onclick = () => showPage('login');
-            }
-            if (mobileLoginBtn) {
-                mobileLoginBtn.textContent = 'Login';
-                mobileLoginBtn.onclick = () => showPage('login');
-            }
-        }
-    });
-}
+// Removed inline auth listener as it moved to setupAuthListener()
+
 
 // ── INIT ──────────────────────────────────
-showPage('home');
+initApp();

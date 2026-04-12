@@ -1242,6 +1242,10 @@
     .vol-stats-row {
         grid-template-columns: 1fr 1fr;
     }
+
+    .assignment-actions {
+        flex-direction: column;
+    }
 }
 
 /* ════════════════════════════════════════
