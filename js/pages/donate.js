@@ -204,8 +204,8 @@ async function callGeminiVisionAPI(base64Image) {
     // Config is now centrally managed in app.js via loadEnv()
 
     // If no key, throw error instead of using hardcoded mock to prevent confusion
-    if (!apiKey) {
-        throw new Error("Missing GEMINI_API_KEY. Please ensure your .env file is set up properly.");
+    if (!apiKey || apiKey.includes('PASTE_YOUR')) {
+        throw new Error("Missing or invalid GEMINI_API_KEY. Please update your env.example file.");
     }
 
     try {
@@ -220,34 +220,37 @@ async function callGeminiVisionAPI(base64Image) {
                     { text: "Analyze this image. If it is NOT a clothing item (e.g., a nature photo, animal, random object), return exactly this JSON: { 'item_type': 'Not a clothing item', 'condition': 'N/A', 'category': 'Invalid API Input', 'suggested_use': 'N/A' }. If it IS a clothing item, return ONLY valid JSON with exactly these keys: 'item_type' (e.g. Men's Winter Jacket, Silk Saree), 'condition' (Good/Fair/Worn), 'category' (e.g. Adult Winter Wear, Women's Clothing), 'suggested_use' (closest matching ngo need category)." },
                     { inlineData: { mimeType: mimeType, data: b64Data } }
                 ]
-            }],
-            generationConfig: {
-                responseMimeType: "application/json"
-            }
+            }]
         };
 
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        console.log("Calling Gemini 2.5 Flash:", apiUrl);
+
+        const res = await fetch(apiUrl, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
         
         const data = await res.json();
         
-        if (data.error) {
-            throw new Error(data.error.message);
+        if (!res.ok) {
+            console.error("Gemini 2.5 Flash Error Body:", data);
+            throw new Error(data.error?.message || "Gemini 2.5 API request failed with status " + res.status);
+        }
+        
+        if (!data.candidates || !data.candidates[0].content) {
+            console.error("Gemini 2.5 Flash Unexpected structure:", data);
+            throw new Error("Invalid response structure from Gemini 2.5 AI.");
         }
         
         let jsonStr = data.candidates[0].content.parts[0].text;
         // Clean markdown backticks if Gemini returns them
         jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(jsonStr);
-        return parsed;
+        return JSON.parse(jsonStr);
     } catch(err) {
-        console.warn("API failed:", err);
-        throw new Error("Failed to analyze image. Please try again.");
+        console.warn("RETHREAD_DIAGNOSTIC: Analysis Logic Failed:", err);
+        throw err; // Re-throw to show in UI
     }
 }
 
