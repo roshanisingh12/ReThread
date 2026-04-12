@@ -6,10 +6,22 @@ let donateState = { base64: null, analysis: null, ngo: null, id: null };
 let ngoMap = null;
 
 const hardcodedNgOs = [
-    { name: "Aasra Relief Camp", lat: 18.5204, lng: 73.8567, dist: "1.8 km", need: "Adult Winter Wear", badge: "🔴 Urgent" },
-    { name: "Pune Orphanage Hub", lat: 18.5300, lng: 73.8400, dist: "3.2 km", need: "Children's Clothing", badge: "🟡 Medium Needs" },
-    { name: "Smile Foundation Drop", lat: 18.5100, lng: 73.8650, dist: "4.5 km", need: "Footwear", badge: "🟢 Normal" }
+    { name: "Goonj - Regional Drop", lat: 18.5204, lng: 73.8567, category: "Mixed Clothing", badge: "🔴 Urgent" },
+    { name: "Smile Foundation Center", lat: 28.6139, lng: 77.2090, category: "Children's Clothing", badge: "🟡 Medium Needs" },
+    { name: "HelpAge India Hub", lat: 19.0760, lng: 72.8777, category: "Senior Support", badge: "🟢 Normal" },
+    { name: "Robin Hood Army Point", lat: 12.9716, lng: 77.5946, category: "Footwear & More", badge: "🟡 Medium Needs" }
 ];
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(1);
+}
 
 function renderDonate() {
     return `
@@ -57,9 +69,13 @@ function renderDonate() {
           
           <!-- AI LOADING -->
           <div id="ai-loading" style="display:none; text-align:center; padding:40px 20px;">
-            <div style="font-size:40px; animation:spin 2s linear infinite; display:inline-block; margin-bottom:16px;">🤖</div>
+            <div class="scanner-container" style="position:relative; width:100px; height:100px; margin:0 auto 24px; background:rgba(27, 107, 58, 0.05); border-radius:16px; display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid var(--primary-green);">
+                <div style="font-size:40px; z-index:2; filter: drop-shadow(0 0 8px rgba(27, 107, 58, 0.3));">🧥</div>
+                <div class="scanner-line" style="position:absolute; top:0; left:0; width:100%; height:4px; background:linear-gradient(to right, transparent, var(--primary-green), transparent); box-shadow:0 0 15px var(--primary-green); z-index:3; animation:scan 2s ease-in-out infinite;"></div>
+                <div class="scanner-pulse" style="position:absolute; width:100%; height:100%; background:radial-gradient(circle, var(--primary-green) 0%, transparent 70%); opacity:0; animation:pulse-ai 2s infinite;"></div>
+            </div>
             <div style="font-weight:700; font-size:18px; color:var(--dark-navy);">Gemini 2.5 Flash</div>
-            <div style="margin-top:8px; font-size:14px; font-weight:600; color:var(--primary-green);">Analyzing your item...</div>
+            <div style="margin-top:8px; font-size:14px; font-weight:600; color:var(--primary-green); text-transform:uppercase; letter-spacing:1px;">Intelligent Scan in Progress...</div>
           </div>
 
           <!-- AI RESULT CARD -->
@@ -87,20 +103,9 @@ function renderDonate() {
       <h2 style="font-size:20px; font-weight:700; color:var(--dark-navy); margin-bottom:16px;">Step 2 — Nearest NGOs in Need</h2>
       <div id="donate-map" style="height:250px; border-radius:12px; margin-bottom:24px; background:#e0e0e0; z-index:1;"></div>
       
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        ${hardcodedNgOs.map((n, i) => `
-        <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap">
-          <div style="font-size:24px;">🏥</div>
-          <div style="flex:1; min-width:min(200px, 100vw)">
-            <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
-            <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.dist} away · <strong>Needs: ${n.need}</strong></div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:12px; font-weight:700; margin-bottom:8px;">${n.badge}</div>
-            <button class="btn btn-outline-green btn-sm" onclick="selectNGOForDonation(${i})">Donate Here</button>
-          </div>
-        </div>
-        `).join('')}
+      <div id="ngo-list-container" style="display:flex; flex-direction:column; gap:12px;">
+        <!-- Dynamically populated -->
+        <div style="text-align:center; padding:20px; color:var(--muted-gray);">Finding nearest NGOs...</div>
       </div>
       <div class="form-nav-btns" style="margin-top:24px;">
         <button class="btn btn-outline-green" onclick="goDonateStep(1)">← Back</button>
@@ -134,8 +139,18 @@ function renderDonate() {
 
   </div>
 </div>
-<!-- spin keyframes -->
-<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+<!-- scan animations -->
+<style>
+@keyframes scan {
+    0%, 100% { top: 0; }
+    50% { top: 100%; }
+}
+@keyframes pulse-ai {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { opacity: 0.15; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+</style>
 `;
 }
 
@@ -236,37 +251,100 @@ async function callGeminiVisionAPI(base64Image) {
     }
 }
 
-// ── LEAFLET MAP LOGIC ─────────────────────
+// ── LEAFLET MAP & GEOLOCATION LOGIC ──────
 function initDonateMap() {
     if (ngoMap) {
         ngoMap.invalidateSize();
-        return; 
     }
-    try {
-        // Center around Pune assuming user is there
-        ngoMap = L.map('donate-map').setView([18.5204, 73.8567], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(ngoMap);
+
+    // Default Pune position as fallback
+    let userLat = 18.5204;
+    let userLng = 73.8567;
+
+    const startLocFetch = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userLat = pos.coords.latitude;
+                    userLng = pos.coords.longitude;
+                    setupMap(userLat, userLng);
+                    updateNgoList(userLat, userLng);
+                },
+                (err) => {
+                    console.warn("Geolocation failed, using default:", err);
+                    setupMap(userLat, userLng);
+                    updateNgoList(userLat, userLng);
+                    showToast('orange', 'Location Access Denied', 'Showing default locations near Pune.');
+                }
+            );
+        } else {
+            setupMap(userLat, userLng);
+            updateNgoList(userLat, userLng);
+        }
+    };
+
+    const setupMap = (lat, lng) => {
+        if (ngoMap) {
+            ngoMap.setView([lat, lng], 12);
+        } else {
+            try {
+                ngoMap = L.map('donate-map').setView([lat, lng], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(ngoMap);
+            } catch(e) { console.warn("Leaflet fail:", e); return; }
+        }
+
+        // Clear existing markers if any (simple way for this demo)
+        ngoMap.eachLayer((layer) => {
+            if (layer instanceof L.Marker) ngoMap.removeLayer(layer);
+        });
 
         // User Pin
-        const userIcon = L.divIcon({ html: '🔵', className: 'map-icon', iconSize: [24,24] });
-        L.marker([18.5204, 73.8567], {icon: userIcon}).addTo(ngoMap).bindPopup("You are here");
+        const userIcon = L.divIcon({ html: '<div style="background:var(--primary-green); width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 10px var(--primary-green);"></div>', className: 'map-icon' });
+        L.marker([lat, lng], {icon: userIcon}).addTo(ngoMap).bindPopup("<b>You are here</b>").openPopup();
 
         // NGO Pins
-        const ngoIcon = L.divIcon({ html: '🏥', className: 'map-icon', iconSize: [24,24] });
+        const ngoIcon = L.divIcon({ html: '🏥', className: 'map-icon', iconSize:[24,24] });
         hardcodedNgOs.forEach(n => {
-            L.marker([n.lat, n.lng], {icon: ngoIcon}).addTo(ngoMap).bindPopup(`<b>${n.name}</b><br/>Needs: ${n.need}`);
+            L.marker([n.lat, n.lng], {icon: ngoIcon}).addTo(ngoMap).bindPopup(`<b>${n.name}</b><br/>Category: ${n.category}`);
         });
+        
         setTimeout(() => ngoMap.invalidateSize(), 300);
-    } catch(e) {
-        console.warn("Map init failed", e);
-    }
+    };
+
+    const updateNgoList = (uLat, uLng) => {
+        const listContainer = document.getElementById('ngo-list-container');
+        if (!listContainer) return;
+
+        // Sort by distance
+        const sorted = hardcodedNgOs.map(n => {
+            return { ...n, realDist: calculateDistance(uLat, uLng, n.lat, n.lng) };
+        }).sort((a, b) => a.realDist - b.realDist);
+
+        listContainer.innerHTML = sorted.map((n, i) => `
+        <div class="fade-up" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap">
+          <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border-color);">🏥</div>
+          <div style="flex:1; min-width:min(200px, 100vw)">
+            <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
+            <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist} km away · <strong>Needs: ${n.category}</strong></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; font-weight:700; margin-bottom:8px; padding:4px 8px; background:white; border-radius:4px; display:inline-block; border:1px solid var(--border-color);">${n.badge}</div>
+            <br/>
+            <button class="btn btn-outline-green btn-sm" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
+          </div>
+        </div>
+        `).join('');
+    };
+
+    startLocFetch();
 }
 
-// ── NAVIGATION LOGIC ──────────────────────
-function selectNGOForDonation(index) {
-    donateState.ngo = hardcodedNgOs[index];
+function selectNGOFromList(name) {
+    const ngo = hardcodedNgOs.find(n => n.name === name);
+    if (!ngo) return;
+    donateState.ngo = ngo;
     donateState.id = "RT-2024-" + Math.floor(10000 + Math.random() * 90000);
     goDonateStep(3);
     
@@ -276,7 +354,7 @@ function selectNGOForDonation(index) {
     document.getElementById('c-ngo').textContent = donateState.ngo.name;
     
     const qrContainer = document.getElementById('qr-code-container');
-    qrContainer.innerHTML = ''; // clear
+    qrContainer.innerHTML = '';
     if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, {
             text: donateState.id,
