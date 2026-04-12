@@ -24,14 +24,20 @@ const hardcodedNgOs = [
 ];
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the earth in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Number((R * c).toFixed(1)); // Return as number for sorting
+    try {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const finalDist = R * c;
+        if (isNaN(finalDist)) return 9999;
+        return Number(finalDist.toFixed(1)); 
+    } catch(e) {
+        return 9999; // Safe fallback if math fails
+    }
 }
 
 function renderDonate() {
@@ -114,12 +120,17 @@ function renderDonate() {
       <h2 style="font-size:20px; font-weight:700; color:var(--dark-navy); margin-bottom:16px;">Step 2 — Nearest NGOs in Need</h2>
       <div id="donate-map" style="height:250px; border-radius:12px; margin-bottom:24px; background:#e0e0e0; z-index:1;"></div>
       
-      <div id="ngo-list-container" style="display:flex; flex-direction:column; gap:12px;">
+      <div id="ngo-list-container" style="display:flex; flex-direction:column; gap:12px; min-height:100px;">
         <!-- Dynamically populated -->
-        <div style="text-align:center; padding:20px; color:var(--muted-gray);">Finding nearest NGOs...</div>
+        <div style="text-align:center; padding:20px; color:var(--muted-gray);">
+            Finding nearest NGOs...
+            <br/><br/>
+            <button class="btn btn-outline-green btn-sm" onclick="initDonateMap()">Retry Finding NGOs 🔄</button>
+        </div>
       </div>
       <div class="form-nav-btns" style="margin-top:24px;">
         <button class="btn btn-outline-green" onclick="goDonateStep(1)">← Back</button>
+        <button class="btn btn-outline-green" style="font-size:12px; opacity:0.6" onclick="initDonateMap()">Refetch Location 📍</button>
       </div>
     </div>
 
@@ -298,81 +309,87 @@ function initDonateMap() {
     };
 
     const setupMap = (lat, lng) => {
-        if (ngoMap) {
-            ngoMap.setView([lat, lng], 12);
-        } else {
-            try {
+        try {
+            if (ngoMap) {
+                ngoMap.setView([lat, lng], 12);
+            } else {
                 ngoMap = L.map('donate-map').setView([lat, lng], 12);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap'
                 }).addTo(ngoMap);
-            } catch(e) { console.warn("Leaflet fail:", e); return; }
+            }
+
+            // Clear existing markers
+            ngoMap.eachLayer((layer) => {
+                if (layer instanceof L.Marker) ngoMap.removeLayer(layer);
+            });
+
+            // User Pin
+            const userIcon = L.divIcon({ html: '<div style="background:var(--primary-green); width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 10px var(--primary-green);"></div>', className: 'map-icon' });
+            L.marker([lat, lng], {icon: userIcon}).addTo(ngoMap).bindPopup("<b>You are here</b>").openPopup();
+
+            // NGO Pins
+            const ngoIcon = L.divIcon({ html: '<span style="font-size:20px">🏥</span>', className: 'ngo-map-marker' });
+            hardcodedNgOs.forEach(n => {
+                try {
+                    L.marker([n.lat, n.lng], {icon: ngoIcon}).addTo(ngoMap).bindPopup(`<b>${n.name}</b><br/>Category: ${n.category}`);
+                } catch(e) { console.warn("Marker skip:", n.name); }
+            });
+            
+            setTimeout(() => ngoMap.invalidateSize(), 400);
+        } catch(e) {
+            console.error("Map Setup Crash:", e);
         }
-
-        // Clear existing markers if any (simple way for this demo)
-        ngoMap.eachLayer((layer) => {
-            if (layer instanceof L.Marker) ngoMap.removeLayer(layer);
-        });
-
-        // User Pin
-        const userIcon = L.divIcon({ html: '<div style="background:var(--primary-green); width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 10px var(--primary-green);"></div>', className: 'map-icon' });
-        L.marker([lat, lng], {icon: userIcon}).addTo(ngoMap).bindPopup("<b>You are here</b>").openPopup();
-
-        // NGO Pins
-        const ngoIcon = L.divIcon({ html: '🏥', className: 'map-icon', iconSize:[24,24] });
-        hardcodedNgOs.forEach(n => {
-            L.marker([n.lat, n.lng], {icon: ngoIcon}).addTo(ngoMap).bindPopup(`<b>${n.name}</b><br/>Category: ${n.category}`);
-        });
-        
-        setTimeout(() => ngoMap.invalidateSize(), 300);
     };
 
     const updateNgoList = (uLat, uLng) => {
         const listContainer = document.getElementById('ngo-list-container');
         if (!listContainer) return;
 
-        console.log(`Matching NGOs for location: ${uLat}, ${uLng}`);
+        try {
+            // Validation
+            const lat = Number(uLat) || 18.5204;
+            const lng = Number(uLng) || 73.8567;
 
-        // 1. Calculate distances
-        const annotated = hardcodedNgOs.map(n => {
-            const dist = calculateDistance(uLat, uLng, n.lat, n.lng);
-            return { ...n, realDist: dist };
-        });
+            // 1. Calculate distances safely
+            const annotated = hardcodedNgOs.map(n => {
+                try {
+                    const dist = calculateDistance(lat, lng, n.lat, n.lng);
+                    return { ...n, realDist: dist };
+                } catch(e) {
+                    return { ...n, realDist: 9999 };
+                }
+            });
 
-        // 2. Filter: within 600km OR marked as Pan-India backup
-        let filtered = annotated.filter(n => n.realDist <= 600 || n.isBackup);
+            // 2. Filter: within 600km OR marked as Pan-India backup
+            let filtered = annotated.filter(n => n.realDist <= 600 || n.isBackup);
 
-        // 3. Fallback: if somehow list is empty, show backups only
-        if (filtered.length === 0) {
-            filtered = annotated.filter(n => n.isBackup);
+            // 3. Fallback: if somehow list is empty, show backups only
+            if (filtered.length === 0) {
+                filtered = annotated.filter(n => n.isBackup);
+            }
+
+            // 4. Sort by distance
+            filtered.sort((a, b) => (Number(a.realDist) || 0) - (Number(b.realDist) || 0));
+
+            listContainer.innerHTML = filtered.map((n, i) => `
+            <div class="fade-up" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap; animation-delay: ${i * 0.1}s">
+            <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border-color); flex-shrink:0;">${n.isBackup ? '🚀' : '🏥'}</div>
+            <div style="flex:1; min-width:min(200px, 100vw)">
+                <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
+                <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist > 1000 ? 'Regional Hub' : n.realDist + ' km away'} · <strong>Needs: ${n.category}</strong></div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px; font-weight:700; margin-bottom:8px; padding:4px 8px; background:white; border-radius:4px; display:inline-block; border:1px solid var(--border-color);">${n.badge}</div>
+                <br/>
+                <button class="btn btn-primary btn-sm" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
+            </div>
+            </div>
+            `).join('');
+        } catch(e) {
+            console.error("NGO List Logic Crash:", e);
+            listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red">Error rendering NGOs. <button onclick="initDonateMap()">Retry</button></div>`;
         }
-
-        // 4. Sort by distance
-        filtered.sort((a, b) => a.realDist - b.realDist);
-
-        if (filtered.length === 0) {
-            listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted-gray); background:white; border-radius:12px; border:1px dashed var(--border-color);">
-                <div style="font-size:32px; margin-bottom:12px;">📍</div>
-                <div style="font-weight:700; color:var(--dark-navy);">No NGOs found within 600km</div>
-                <p style="font-size:13px; margin-top:4px;">Try searching in a different city or check back soon.</p>
-            </div>`;
-            return;
-        }
-
-        listContainer.innerHTML = filtered.map((n, i) => `
-        <div class="fade-up" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px; transition:0.3s; flex-wrap:wrap; animation-delay: ${i * 0.1}s">
-          <div style="font-size:24px; background:white; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--border-color); flex-shrink:0;">${n.isBackup ? '🚀' : '🏥'}</div>
-          <div style="flex:1; min-width:min(200px, 100vw)">
-            <div style="font-weight:700; color:var(--dark-navy);">${n.name}</div>
-            <div style="font-size:13px; color:var(--muted-gray); margin-top:4px;">${n.realDist > 1000 ? 'Regional Hub' : n.realDist + ' km away'} · <strong>Needs: ${n.category}</strong></div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:11px; font-weight:700; margin-bottom:8px; padding:4px 8px; background:white; border-radius:4px; display:inline-block; border:1px solid var(--border-color);">${n.badge}</div>
-            <br/>
-            <button class="btn btn-primary btn-sm" onclick="selectNGOFromList('${n.name.replace(/'/g, "\\'")}')">Donate Here</button>
-          </div>
-        </div>
-        `).join('');
     };
 
     startLocFetch();
