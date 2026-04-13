@@ -65,7 +65,7 @@ ReThread is built to advance the following UN 2030 targets:
 ### Local Configuration
 1. **Clone the Project**:
    ```bash
-   git clone https://github.com/Pranavms09/ReThread.git
+   git clone https://github.com/roshanisingh12/ReThread.git
    ```
 2. **Configure Environment**:
    Create `env.json` in the root directory:
