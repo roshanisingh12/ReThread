@@ -2,7 +2,7 @@
 
 > **"Bridging the gap between fashion waste and social welfare with AI-driven hyperlocal logistics."**
 
-[![Google Solution Challenge](https://img.shields.io/badge/Google_Solution_Challenge-2025-4285F4?logo=google&logoColor=white)](https://developers.google.com/community/solutions-challenge)
+[![Google Solution Challenge](https://img.shields.io/badge/Google_Solution_Challenge-2026-4285F4?logo=google&logoColor=white)](https://developers.google.com/community/solutions-challenge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -55,15 +55,6 @@ ReThread is built to advance the following UN 2030 targets:
 
 ---
 
-## 📸 Demo & Screenshots
-[Add Main App Screenshot Here]
-> *Caption: The ReThread Home Screen featuring Live Impact Stats.*
-
-[Add AI Scan Screenshot Here]
-> *Caption: AI Vision Engine analyzing a winter jacket for the nearest Aasra Relief Camp.*
-
----
-
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
@@ -111,9 +102,9 @@ ReThread is built to advance the following UN 2030 targets:
 | Name | Role | Contact |
 | :--- | :--- | :--- |
 | **Pranav Mohan Suryawanshi** | Team Leader & Full Stack | [pranavms09@gmail.com](mailto:pranavms09@gmail.com) |
-| **RUPESH SANJAY PATIL** | Frontend Developer | [rupeshpatil14042006@gmail.com](mailto:rupeshpatil14042006@gmail.com) |
 | **Roshani Jagdeep Singh** | UI/UX & Content | [2007roshanisingh@gmail.com](mailto:2007roshanisingh@gmail.com) |
+| **Rupesh Sanjay Patil** | Frontend Developer | [rupeshpatil14042006@gmail.com](mailto:rupeshpatil14042006@gmail.com) |
 | **Mahi Bhavikkumar Soni** | AI Researcher | [soni.mahi3011@gmail.com](mailto:soni.mahi3011@gmail.com) |
 
 ---
-© 2025 ReThread Team | Developed with ❤️ for **Google Solution Challenge**
+© 2026 ReThread Team | Developed with ❤️ for **Google Solution Challenge**
