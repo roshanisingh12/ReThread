@@ -2,14 +2,18 @@
 // VOLUNTEER DASHBOARD
 // ════════════════════════════════════════
 function renderVolunteer() {
+    const user = getAuthUser();
+    const name = user ? (user.displayName || user.email.split('@')[0]) : 'Volunteer';
+    const initial = name.charAt(0).toUpperCase();
+
     return `
 <div id="volunteer-page">
   <div class="dashboard-layout">
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-avatar">R</div>
-        <div class="sidebar-user-name">Rahul Kumar</div>
+        <div class="sidebar-avatar">${initial}</div>
+        <div class="sidebar-user-name">${name}</div>
         <div class="sidebar-user-role">Volunteer · Pune</div>
       </div>
       <nav class="sidebar-nav">
@@ -25,7 +29,7 @@ function renderVolunteer() {
     <main class="dashboard-main">
       <div class="welcome-bar fade-up">
         <div>
-          <div class="welcome-greeting">Good Afternoon, Rahul! 👋</div>
+          <div class="welcome-greeting">Good Afternoon, ${name}! 👋</div>
           <div class="welcome-sub">3 new assignments near you. Your route is optimized for max efficiency.</div>
         </div>
         <button class="btn btn-outline-white btn-sm" onclick="showToast('green','🗺️ Route Ready','Optimized route loaded for today\'s pickups!')">View Today's Route →</button>

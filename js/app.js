@@ -2,6 +2,161 @@
 // APP.JS — Main Router & Global Logic
 // ════════════════════════════════════════
 
+// ── FIREBASE INITIALIZATION ───────────────
+window.envConfig = {};
+
+async function loadEnv() {
+    // 1. Try Local Storage (User Setup)
+    const localGemini = localStorage.getItem('RT_GEMINI_KEY');
+    const localFirebase = localStorage.getItem('RT_FIREBASE_KEY');
+    if (localGemini) window.envConfig.GEMINI_API_KEY = localGemini;
+    if (localFirebase) window.envConfig.FIREBASE_API_KEY = localFirebase;
+
+    // 2. Try URL Fetch (Standard Sources)
+    const sources = ['/env.json', '/env.example', '/.env.example', '/.env'];
+    for (const source of sources) {
+        try {
+            const resp = await fetch(source);
+            if (resp.ok) {
+                if (source.endsWith('.json')) {
+                    const config = await resp.json();
+                    Object.keys(config).forEach(key => {
+                        if (!window.envConfig[key] || window.envConfig[key].includes('PASTE_YOUR')) {
+                            window.envConfig[key] = config[key];
+                        }
+                    });
+                } else {
+                    const text = await resp.text();
+                    text.split('\n').forEach(line => {
+                        const trimmedLine = line.trim();
+                        if (!trimmedLine || trimmedLine.startsWith('#')) return;
+                        
+                        const parts = trimmedLine.split('=');
+                        if (parts.length >= 2) {
+                            const key = parts[0].trim();
+                            const value = parts.slice(1).join('=').trim().replace(/['"]/g, '');
+                            if (!window.envConfig[key] || window.envConfig[key].includes('PASTE_YOUR')) {
+                                window.envConfig[key] = value;
+                            }
+                        }
+                    });
+                }
+                console.log(`Environment loaded from ${source}`);
+                return; 
+            }
+        } catch (e) {
+            console.warn(`Could not load from ${source}:`, e);
+        }
+    }
+}
+
+async function initApp() {
+    try {
+        // Show splash/loading
+        const appEl = document.getElementById('app');
+        if (appEl) appEl.innerHTML = '<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:var(--dark-navy)"><div style="font-size:40px;animation:spin 2s linear infinite">🔄</div><div style="font-weight:600">Initializing ReThread...</div></div>';
+
+        await loadEnv();
+
+        // Check if configuration is missing
+        const isConfigMissing = !window.envConfig.GEMINI_API_KEY || 
+                                 window.envConfig.GEMINI_API_KEY.includes('PASTE_YOUR') || 
+                                !window.envConfig.FIREBASE_API_KEY ||
+                                 window.envConfig.FIREBASE_API_KEY.includes('PASTE_YOUR');
+
+        if (isConfigMissing) {
+            const setupModal = document.getElementById('setup-modal');
+            if (setupModal) setupModal.classList.add('open');
+            if (appEl) appEl.innerHTML = ''; // Clear splash
+            return;
+        }
+
+        const firebaseConfig = {
+            apiKey: window.envConfig.FIREBASE_API_KEY,
+            authDomain: window.envConfig.FIREBASE_AUTH_DOMAIN || "rethread-e7afe.firebaseapp.com",
+            projectId: window.envConfig.FIREBASE_PROJECT_ID || "rethread-e7afe",
+            storageBucket: window.envConfig.FIREBASE_STORAGE_BUCKET || "rethread-e7afe.firebasestorage.app",
+            messagingSenderId: window.envConfig.FIREBASE_MESSAGING_SENDER_ID || "1089027360405",
+            appId: window.envConfig.FIREBASE_APP_ID || "1:1089027360405:web:fb93dea92ed00b57217d9c",
+            measurementId: window.envConfig.FIREBASE_MEASUREMENT_ID || "G-HKXHS3NSFG"
+        };
+
+        if (typeof window.firebase !== 'undefined' && !firebase.apps.length && firebaseConfig.apiKey) {
+            firebase.initializeApp(firebaseConfig);
+            setupAuthListener();
+        }
+    } catch (e) {
+        console.error("Critical Startup Error:", e);
+    } finally {
+        // Only show home if configuration was NOT missing (which stops initApp)
+        if (window.envConfig.GEMINI_API_KEY && !window.envConfig.GEMINI_API_KEY.includes('PASTE_YOUR')) {
+            showPage('home');
+        }
+    }
+}
+
+function saveSetupConfig() {
+    const gemini = document.getElementById('setup-gemini-key').value.trim();
+    const firebaseKey = document.getElementById('setup-firebase-key').value.trim();
+
+    if (!gemini || !firebaseKey) {
+        showToast('orange', 'Configuration Missing', 'Please provide both API keys.');
+        return;
+    }
+
+    localStorage.setItem('RT_GEMINI_KEY', gemini);
+    localStorage.setItem('RT_FIREBASE_KEY', firebaseKey);
+    
+    showToast('green', 'Setup Complete', 'Configuration saved. Launching app...');
+    
+    // Hide modal and restart init
+    document.getElementById('setup-modal').classList.remove('open');
+    initApp();
+}
+
+
+
+function setupAuthListener() {
+    if (typeof window.firebase === 'undefined') return;
+    
+    firebase.auth().onAuthStateChanged((user) => {
+        const navLoginBtn = document.getElementById('nav-login-btn');
+        const mobileLoginBtn = document.getElementById('mobile-login-btn');
+        
+        if (user) {
+            if (navLoginBtn) {
+                navLoginBtn.textContent = 'Sign Out';
+                navLoginBtn.onclick = handleSignOut;
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.textContent = 'Sign Out';
+                mobileLoginBtn.onclick = handleSignOut;
+            }
+        } else {
+            if (navLoginBtn) {
+                navLoginBtn.textContent = 'Login';
+                navLoginBtn.onclick = () => showPage('login');
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.textContent = 'Login';
+                mobileLoginBtn.onclick = () => showPage('login');
+            }
+        }
+    });
+}
+
+function getAuthUser() {
+    if (typeof window.firebase === 'undefined' || firebase.apps.length === 0) {
+        return null;
+    }
+    try {
+        return firebase.auth().currentUser;
+    } catch (e) {
+        console.warn("Firebase Auth not ready:", e);
+        return null;
+    }
+}
+
 let currentPage = 'home';
 let donateStep = 1;
 let donateCondition = 'Good';
@@ -15,6 +170,8 @@ const pageRenderers = {
     volunteer: renderVolunteer,
     ngo: renderNGO,
     howitworks: renderHowItWorks,
+    profile: typeof renderProfile !== 'undefined' ? renderProfile : () => '<h2>Profile missing</h2>',
+    login: typeof renderLogin !== 'undefined' ? renderLogin : () => '<h2>Login missing</h2>',
 };
 
 function showPage(page) {
@@ -274,5 +431,8 @@ function updateZonePopup(el, zone, urgency, w, c, b) {
     }
 }
 
+// Removed inline auth listener as it moved to setupAuthListener()
+
+
 // ── INIT ──────────────────────────────────
-showPage('home');
+initApp();

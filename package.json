@@ -1,0 +1,12 @@
+{
+  "name": "rethread",
+  "version": "1.0.0",
+  "description": "ReThread Clothing Donation Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve ."
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

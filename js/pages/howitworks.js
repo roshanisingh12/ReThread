@@ -32,7 +32,7 @@ function renderHowItWorks() {
         <div class="hiw-step-content">
           <div class="hiw-step-num">Step 2</div>
           <h3 class="hiw-step-title">AI Analysis</h3>
-          <p class="hiw-step-desc">Our Claude Vision AI instantly analyzes the condition, fabric, and optimal category for your item.</p>
+          <p class="hiw-step-desc">Our Gemini 2.5 Flash Vision AI instantly analyzes the condition, fabric, and optimal category for your item.</p>
         </div>
       </div>
 

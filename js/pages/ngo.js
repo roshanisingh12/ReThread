@@ -16,15 +16,15 @@ function renderNGO() {
     
     return `
 <div id="ngo-page">
-  <div class="page-header" style="padding-top:40px; padding-bottom:40px;">
+  <div class="page-header" style="padding-top:20px; padding-bottom:40px;">
     <div class="container">
       <div class="ngo-header fade-up" style="display:flex; align-items:center; gap:24px; padding-top:24px;">
         <div style="font-size:64px; background:var(--card-bg); padding:16px; border-radius:16px;">🏕️</div>
         <div>
-          <h1 class="section-title" style="margin:0; font-size:32px;">Aasra Relief Camp</h1>
+          <h1 class="section-title" style="margin:0; font-size:32px; color:#fff;">Aasra Relief Camp</h1>
           <div style="display:flex; gap:12px; align-items:center; margin-top:8px;">
             <div class="badge badge-green">✅ Verified NGO</div>
-            <div style="font-size:14px; color:var(--muted-gray);">ID: NGO-2018-4001 · Pune</div>
+            <div style="font-size:14px; color:rgba(255,255,255,0.65);">ID: NGO-2018-4001 · Pune</div>
           </div>
         </div>
       </div>
