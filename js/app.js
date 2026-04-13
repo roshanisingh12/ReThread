@@ -13,12 +13,12 @@ async function loadEnv() {
     if (localFirebase) window.envConfig.FIREBASE_API_KEY = localFirebase;
 
     // 2. Try URL Fetch (Standard Sources)
-    const sources = ['/env.json', '/env.example', '/.env.example', '/.env'];
+    const sources = ['/env.json', '/api/config', '/env.example', '/.env.example', '/.env'];
     for (const source of sources) {
         try {
             const resp = await fetch(source);
             if (resp.ok) {
-                if (source.endsWith('.json')) {
+                if (source.endsWith('.json') || source.includes('/api/config')) {
                     const config = await resp.json();
                     Object.keys(config).forEach(key => {
                         if (!window.envConfig[key] || window.envConfig[key].includes('PASTE_YOUR')) {
@@ -434,5 +434,4 @@ function updateZonePopup(el, zone, urgency, w, c, b) {
 // Removed inline auth listener as it moved to setupAuthListener()
 
 
-// ── INIT ──────────────────────────────────
-initApp();
+
